@@ -7,16 +7,20 @@ const app = express();
 const PORT = 5000;
 
 
-app.use(cors()); // 允许跨域
+app.use(cors());
 app.use(express.json());
 
 // 路由模块
-const registerRoutes = require('./routes/user/register');
-const loginRoutes = require('./routes/user/login');
+const registerRoutes = require('./routes/management/register');
+const loginRoutes = require('./routes/management/login');
+const journalsRoutes = require('./routes/management/journals/items');
+const modifyRoutes = require('./routes/management/journals/modify');
 
 // 挂载路由（使用统一前缀）
 app.use('/api', registerRoutes);
 app.use('/api', loginRoutes);
+app.use('/api/journals', journalsRoutes);
+app.use('/api/journals', modifyRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);

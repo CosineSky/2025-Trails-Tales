@@ -29,23 +29,25 @@ export default function Register() {
     };
 
     return (
-        <div className="wrapper">
-            <form className="login">
-                <p className="title">Register</p>
-                <input type="text" placeholder="Username" onChange={e => setUsername(e.target.value)}/>
-                <i className="fa fa-user"></i>
-                <input type="password" placeholder="Password" onChange={e => setPassword(e.target.value)}/>
-                <i className="fa fa-key"></i>
-                <input type="password" placeholder="Confirm Password" onChange={e => setConfirmPassword(e.target.value)}/>
-                <i className="fa fa-key"></i>
+        <div className="register-bg-wrapper">
+            <div className="register-wrapper">
+                <form className="login">
+                    <p className="title">Register</p>
+                    <input type="text" placeholder="Username" onChange={e => setUsername(e.target.value)}/>
+                    <i className="fa fa-user"></i>
+                    <input type="password" placeholder="Password" onChange={e => setPassword(e.target.value)}/>
+                    <i className="fa fa-key"></i>
+                    <input type="password" placeholder="Confirm Password" onChange={e => setConfirmPassword(e.target.value)}/>
+                    <i className="fa fa-key"></i>
 
-                <span className="info">Already have an account? </span>
-                <Link to="/login">Log in!</Link>
-                <button onClick={handleRegister}>
-                    <i className="spinner"></i>
-                    <span className="state">Register</span>
-                </button>
-            </form>
+                    <span className="info">Already have an account? </span>
+                    <Link to="/login">Log in!</Link>
+                    <button onClick={handleRegister}>
+                        <i className="spinner"></i>
+                        <span className="state">Register</span>
+                    </button>
+                </form>
+            </div>
         </div>
     );
 }

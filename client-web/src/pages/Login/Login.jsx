@@ -24,21 +24,23 @@ export default function Login() {
     };
 
     return (
-        <div className="wrapper">
-            <form className="login">
-                <p className="title">Log in</p>
-                <input type="text" placeholder="Username" onChange={e => setUsername(e.target.value)}/>
-                <i className="fa fa-user"></i>
-                <input type="password" placeholder="Password" onChange={e => setPassword(e.target.value)}/>
-                <i className="fa fa-key"></i>
-                <Link to="/reset">Forgot your password?</Link><br/>
-                <span className="info">Don't have an account? </span>
-                <Link to="/register">Register one!</Link>
-                <button onClick={handleLogin}>
-                    <i className="spinner"></i>
-                    <span className="state">Log in</span>
-                </button>
-            </form>
+        <div className="login-bg-wrapper">
+            <div className="login-wrapper">
+                <form className="login">
+                    <p className="title">Log in</p>
+                    <input type="text" placeholder="Username" onChange={e => setUsername(e.target.value)}/>
+                    <i className="fa fa-user"></i>
+                    <input type="password" placeholder="Password" onChange={e => setPassword(e.target.value)}/>
+                    <i className="fa fa-key"></i>
+                    <Link to="/reset">Forgot your password?</Link><br/>
+                    <span className="info">Don't have an account? </span>
+                    <Link to="/register">Register one!</Link>
+                    <button onClick={handleLogin}>
+                        <i className="spinner"></i>
+                        <span className="state">Log in</span>
+                    </button>
+                </form>
+            </div>
         </div>
     );
 }

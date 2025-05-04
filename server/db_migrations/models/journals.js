@@ -45,6 +45,10 @@ module.exports = (sequelize) => {
             type: DataTypes.INTEGER,
             allowNull: true,
         },
+        detail_status: {
+            type: DataTypes.STRING(1024),
+            allowNull: false,
+        },
     }, {
         tableName: 'journals',
         timestamps: false,
