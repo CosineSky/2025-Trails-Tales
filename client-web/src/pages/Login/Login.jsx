@@ -1,5 +1,6 @@
 // src/pages/Login.jsx
 import './Login.css';
+import { jwtDecode } from 'jwt-decode';
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
@@ -18,6 +19,18 @@ export default function Login() {
         });
 
         if (res.status === 200) {
+            const { token } = await res.json();
+            if (!token) {
+                return null;
+            }
+            try {
+                const decodedToken = jwtDecode(token);
+                localStorage.setItem('username', decodedToken.username);
+                localStorage.setItem('role', decodedToken.role);
+            } catch (error) {
+                console.error('Failed to decode token:', error);
+                return null;
+            }
             navigate('/home');
         }
 

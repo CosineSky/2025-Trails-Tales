@@ -9,6 +9,7 @@ export default function Register() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [role, setRole] = useState(1); // 默认角色是“审核人员”
 
     const handleRegister = async (e) => {
         e.preventDefault();
@@ -20,7 +21,7 @@ export default function Register() {
         const res = await fetch('http://localhost:5000/api/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password }),
+            body: JSON.stringify({ username, password, role }), // 添加角色信息到请求体
         });
 
         if (res.status === 200) {
@@ -33,12 +34,18 @@ export default function Register() {
             <div className="register-wrapper">
                 <form className="login">
                     <p className="title">Register</p>
-                    <input type="text" placeholder="Username" onChange={e => setUsername(e.target.value)}/>
+                    <input type="text" placeholder="Username" onChange={e => setUsername(e.target.value)} />
                     <i className="fa fa-user"></i>
-                    <input type="password" placeholder="Password" onChange={e => setPassword(e.target.value)}/>
+                    <input type="password" placeholder="Password" onChange={e => setPassword(e.target.value)} />
                     <i className="fa fa-key"></i>
-                    <input type="password" placeholder="Confirm Password" onChange={e => setConfirmPassword(e.target.value)}/>
+                    <input type="password" placeholder="Confirm Password" onChange={e => setConfirmPassword(e.target.value)} />
                     <i className="fa fa-key"></i>
+
+                    {/* 角色选择下拉菜单 */}
+                    <select onChange={e => setRole(e.target.value)} value={role}>
+                        <option value={1}>审核人员</option>
+                        <option value={2}>管理员</option>
+                    </select><br/>
 
                     <span className="info">Already have an account? </span>
                     <Link to="/login">Log in!</Link>

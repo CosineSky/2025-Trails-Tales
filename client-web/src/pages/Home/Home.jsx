@@ -17,6 +17,7 @@ const TravelNoteAdmin = () => {
     const [journals, setJournals] = useState(null);
     const [rejectionReason, setRejectionReason] = useState('');
     const [loading, setLoading] = useState(true);
+    const currentRole = localStorage.getItem('role');
 
     useEffect(() => {
         axios.get('http://localhost:5000/api/journals/items')
@@ -73,9 +74,11 @@ const TravelNoteAdmin = () => {
                     >
                         拒绝
                     </Button>
-                    <Button onClick={() => handleDelete(record)} danger>
-                        删除
-                    </Button>
+                    {currentRole === '2' && (
+                        <Button onClick={() => handleDelete(record)} danger>
+                            删除
+                        </Button>
+                    )}
                     <Button onClick={() => handleViewDetails(record)} type="link">
                         详情
                     </Button>

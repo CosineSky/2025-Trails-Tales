@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../../db');
+const jwt = require('jsonwebtoken');
 
 router.post('/login', (req, res) => {
     const { username, password } = req.body;
@@ -10,12 +11,21 @@ router.post('/login', (req, res) => {
         if (err) {
             return res.status(500).json({ message: 'DB Error' });
         }
-        if (results.length > 0) {
-            res.status(200).json({ message: 'Login successful' });
+        if (results.length === 0) {
+            return res.status(401).json({ message: 'Invalid credentials' });
         }
         else {
-            res.status(401).json({ message: 'Invalid credentials' });
+            const user = results[0];
+            const token = jwt.sign(
+                { userId: user.id, username: user.username, role: user.role },
+                'your-secret-key',
+                { expiresIn: '24h' }
+            );
+            console.log(token);
+            return res.status(200).json({ token });
         }
+
+
     });
 });
 
