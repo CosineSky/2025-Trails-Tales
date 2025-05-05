@@ -5,7 +5,7 @@ import Input from '../components/Input';
 import Button from '../components/Button';
 import { loginUser } from '../services/authService';
 import { useDispatch } from 'react-redux';
-import { login } from '../store/actions/authActions';
+import { login } from '../store/actions/authAction.ts';
 
 const Login: React.FC = ({ navigation }: any) => {
     const [email, setEmail] = useState('');
@@ -16,7 +16,7 @@ const Login: React.FC = ({ navigation }: any) => {
         try {
             const user = await loginUser(email, password);
             dispatch(login(user));
-            navigation.replace('Home');
+            navigation.replace('Main');
         } catch (error) {
             Alert.alert('Login Failed', 'Invalid credentials or server error.');
         }

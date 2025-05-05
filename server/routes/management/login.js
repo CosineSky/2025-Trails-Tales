@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 
 router.post('/login', (req, res) => {
     const { username, password } = req.body;
+    console.log(username, password);
 
     db.query('SELECT * FROM users WHERE username = ? AND password = ?', [username, password], (err, results) => {
         if (err) {

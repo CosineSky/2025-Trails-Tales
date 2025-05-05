@@ -5,7 +5,7 @@ import Input from '../components/Input';
 import Button from '../components/Button';
 import { registerUser } from '../services/authService';
 import { useDispatch } from 'react-redux';
-import { login } from '../store/actions/authActions';
+import { login } from '../store/actions/authAction.ts';
 
 const Register: React.FC = ({ navigation }: any) => {
     const [email, setEmail] = useState('');
@@ -16,7 +16,7 @@ const Register: React.FC = ({ navigation }: any) => {
         try {
             const user = await registerUser(email, password);
             dispatch(login(user));
-            navigation.replace('Home');
+            navigation.replace('Login');
         } catch (error) {
             Alert.alert('Registration Failed', 'Email already exists or server error.');
         }
