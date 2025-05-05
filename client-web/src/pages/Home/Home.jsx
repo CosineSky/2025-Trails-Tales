@@ -199,7 +199,7 @@ const TravelNoteAdmin = () => {
                         columns={columns}
                         dataSource={filteredData}
                         rowKey="id"
-                        pagination={{ pageSize: 5 }}
+                        pagination={{ pageSize: 8 }}
                     />
                 </div>
             </div>

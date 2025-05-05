@@ -21,7 +21,6 @@ router.post('/login', (req, res) => {
                 'your-secret-key',
                 { expiresIn: '24h' }
             );
-            console.log(token);
             return res.status(200).json({ token });
         }
 
