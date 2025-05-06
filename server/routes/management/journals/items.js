@@ -24,7 +24,6 @@ router.get('/items', (req, res) => {
             return res.status(500).json({ error: err.message });
         }
         else {
-            console.log(results.length);
             return res.status(200).json(results);
         }
     });

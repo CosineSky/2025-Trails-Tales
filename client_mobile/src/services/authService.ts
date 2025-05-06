@@ -1,6 +1,5 @@
 // src/services/authService.ts
 import axios from 'axios';
-import {Alert} from "react-native";
 
 const HOST_IP = "10.0.2.2"; // This gives 127.0.0.1 in host device.
 const HOST_PORT = "5000";

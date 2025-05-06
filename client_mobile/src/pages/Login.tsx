@@ -6,6 +6,8 @@ import Button from '../components/Button';
 import { loginUser } from '../services/authService';
 import { useDispatch } from 'react-redux';
 import { login } from '../store/actions/authAction.ts';
+import { jwtDecode } from 'jwt-decode';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const logoImage = require('../assets/images/logo.png');
@@ -19,10 +21,16 @@ const Login: React.FC = ({ navigation }: any) => {
 
     const handleLogin = async () => {
         try {
-            const user = await loginUser(email, password);
-            dispatch(login(user));
+            const response = await loginUser(email, password); // expects { token }
+            const token = response.token;
+            const decoded: any = jwtDecode(token); // { userId, username, role }
+
+            // 保存 token 到本地和 Redux
+            await AsyncStorage.setItem('token', token);
+            dispatch(login({ ...decoded, token }));
             navigation.replace('Main');
         } catch (error) {
+            console.log(error);
             Alert.alert('Login Failed', 'Invalid credentials or server error.');
         }
     };

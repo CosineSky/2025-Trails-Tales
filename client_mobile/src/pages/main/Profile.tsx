@@ -1,62 +1,65 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, Button, Image, Alert } from 'react-native';
-import { launchImageLibrary } from 'react-native-image-picker'; // 用于选择图片
+import React, {useEffect, useState} from 'react';
+import {Alert, Button, Image, StyleSheet, TextInput, View} from 'react-native';
+import {handleImagePick} from "../../services/selectAndUploadFile.ts";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {jwtDecode} from "jwt-decode"; // 用于选择图片
 
-
-const testAvatar = require('../../assets/images/avatar.png');
-
+const avatarImage = require('../../assets/images/avatar.png'); // 默认头像图片
 
 const UserInfo: React.FC = () => {
     const [avatar, setAvatar] = useState<string>(''); // 用户头像URL
-    const [nickname, setNickname] = useState<string>(''); // 用户昵称
+    const [nickname, setNickname] = useState<string>('John Doe'); // 用户昵称
+    const [isEditing, setIsEditing] = useState<boolean>(false); // 是否正在编辑
+    const [newAvatar, setNewAvatar] = useState<string>(''); // 存储选择的新头像
 
-    // 这里模拟从本地存储或 API 获取用户信息
     useEffect(() => {
-        // 假设从后端或本地获取用户信息
-        setAvatar('https://oss-yourbucket.oss-cn-region.aliyuncs.com/user-avatar.jpg'); // 从阿里云 OSS 获取头像
+        // 模拟加载用户信息（从后端或本地存储）
+        setAvatar('https://oss-yourbucket.oss-cn-region.aliyuncs.com/user-avatar.jpg');
         setNickname('John Doe');
     }, []);
 
-    const handleImagePick = () => {
-        launchImageLibrary({mediaType: 'photo'}, response => {
-            // 先检查 response.assets 是否存在
-            if (!response.assets || response.assets.length === 0) {
-                // 如果没有选择图片或响应没有assets，返回
-                Alert.alert('未选择图片');
-                return;
-            }
+    // 处理昵称和头像的更新
+    const handleSaveChanges = () => {
+        // 在这里调用后端接口来保存用户修改的头像和昵称
+        const updatedAvatar = newAvatar || avatar; // 如果选择了新头像，则使用新头像，否则使用原头像
+        // 模拟保存操作
+        Alert.alert('信息已保存', `头像: ${updatedAvatar}\n昵称: ${nickname}`);
 
-            // 访问 assets 并上传头像
-            const uri = response.assets[0].uri as string;
-            uploadAvatar(uri);
-        }).then(() => {});
+        // 调用后端API更新用户信息
+        // updateUserInfo({ avatar: updatedAvatar, nickname: updatedNickname });
+
+        // 保存完成后退出编辑状态
+        setIsEditing(false);
     };
 
-
-    const uploadAvatar = (uri: string) => {
-        // 假设你已经有阿里云 OSS SDK 配置好了并可以上传图片
-        // 使用阿里云 OSS SDK 上传图片并获取 URL
-        const avatarUrl = 'https://oss-yourbucket.oss-cn-region.aliyuncs.com/uploaded-avatar.jpg'; // 返回的头像URL
-        setAvatar(avatarUrl); // 更新头像
-        Alert.alert('头像更新成功');
+    const handleEditToggle = () => {
+        setIsEditing(!isEditing); // 切换编辑状态
     };
 
-    const handleNicknameChange = () => {
-        // 这里你可以调用 API 来更新用户的昵称
-        Alert.alert('昵称已更新');
+    const handleAvatarChange = (uri: string) => {
+        setNewAvatar(uri); // 更新新选择的头像
     };
 
     return (
         <View style={styles.container}>
-            <Image source={{ uri: avatar }} style={styles.avatar} />
-            <Button title="更改头像" onPress={handleImagePick} />
+            <Image source={{ uri: newAvatar || avatar }} style={styles.avatar} />
+            {isEditing ? (
+                <Button title="上传头像" onPress={() => handleImagePick()} />
+            ) : (
+                <Button title="更改头像" onPress={() => handleImagePick()} />
+            )}
             <TextInput
                 style={styles.input}
                 value={nickname}
                 onChangeText={setNickname}
                 placeholder="修改昵称"
+                editable={isEditing} // 仅在编辑模式下允许编辑
             />
-            <Button title="保存" onPress={handleNicknameChange} />
+            {isEditing ? (
+                <Button title="保存信息" onPress={handleSaveChanges} />
+            ) : (
+                <Button title="编辑个人信息" onPress={handleEditToggle} />
+            )}
         </View>
     );
 };
