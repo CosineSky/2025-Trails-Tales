@@ -6,32 +6,42 @@ const HOST_PORT = "5000";
 const API_URL = `http://${HOST_IP}:${HOST_PORT}/api`;
 
 
-export const handleImagePick = () => {
-    launchImageLibrary({mediaType: 'photo'}, async (response) => {
-        if (response.didCancel || !response.assets) return;
+export const handleImagePick = (): Promise<string | null> => {
+    return new Promise((resolve, reject) => {
+        launchImageLibrary({mediaType: 'photo'}, async (response) => {
+            try {
+                if (response.didCancel || !response.assets) {
+                    resolve(null);
+                    return;
+                }
 
-        console.log(response.assets);
+                const asset = response.assets[0];
+                const uri = asset.uri;
+                const fileName = asset.fileName || 'image.jpg';
+                const type = asset.type || 'image/jpeg';
 
-        const uri = response.assets[0].uri;
-        const fileName = response.assets[0].fileName;
-        const type = response.assets[0].type;
+                const formData = new FormData();
+                formData.append('avatar', {
+                    uri,
+                    name: fileName,
+                    type,
+                } as any); // React Native 的 FormData 类型可能需要断言
 
-        const formData = new FormData();
-        formData.append('avatar', {
-            uri,
-            name: fileName,
-            type,
+                const res = await fetch(`${API_URL}/utils/oss`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+
+                const data = await res.json();
+                console.log('上传成功：', data.url);
+                resolve(data.url);
+            } catch (err) {
+                console.error('上传失败', err);
+                reject(err);
+            }
         });
-
-        const res = await fetch(`${API_URL}/utils/oss`, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-        });
-
-        const data = await res.json();
-        console.log('上传成功：', data.url);
-    }).then(() => {});
+    });
 };

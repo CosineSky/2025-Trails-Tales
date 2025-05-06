@@ -15,7 +15,8 @@ const registerRoutes = require('./routes/management/register');
 const loginRoutes = require('./routes/management/login');
 const journalsRoutes = require('./routes/management/journals/items');
 const modifyRoutes = require('./routes/management/journals/modify');
-const ossRoutes = require('./routes/utils/oss');
+const ossRoutes = require('./routes/app/utils/oss');
+const profileRoutes = require('./routes/app/users/profile');
 
 // 挂载路由（使用统一前缀）
 app.use('/api', registerRoutes);
@@ -23,6 +24,7 @@ app.use('/api', loginRoutes);
 app.use('/api/journals', journalsRoutes);
 app.use('/api/journals', modifyRoutes);
 app.use('/api/utils', ossRoutes);
+app.use('/api/users', profileRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
