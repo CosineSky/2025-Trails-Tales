@@ -5,15 +5,17 @@ import { NavigationContainer } from '@react-navigation/native';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import MainTabNavigator from "./MainTabNavigator.tsx";
+import Detail from "../pages/Detail.tsx";
 
 const Stack = createStackNavigator();
 
 const AppNavigator: React.FC = () => (
     <NavigationContainer>
-        <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
+        <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: true }}>
             <Stack.Screen name="Login" component={Login} />
             <Stack.Screen name="Register" component={Register} />
             <Stack.Screen name="Main" component={MainTabNavigator} />
+            <Stack.Screen name="Detail" component={Detail} />
         </Stack.Navigator>
     </NavigationContainer>
 );

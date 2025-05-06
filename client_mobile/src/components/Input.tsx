@@ -21,12 +21,14 @@ const Input: React.FC<InputProps> = ({ value, onChangeText, placeholder, secureT
 
 const styles = StyleSheet.create({
     input: {
+        width: '100%',
         height: 50,
         borderColor: '#ccc',
         borderWidth: 1,
         borderRadius: 5,
         paddingLeft: 10,
         marginBottom: 15,
+        backgroundColor: 'rgba(255, 255, 255, 0.75)',
     },
 });
 

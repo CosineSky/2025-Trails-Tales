@@ -7,7 +7,6 @@ const HOST_PORT = "5000";
 const API_URL = `http://${HOST_IP}:${HOST_PORT}/api`;
 
 export const loginUser = async (username: string, password: string) => {
-    Alert.alert(`${API_URL}/login`, username + " " + password);
     try {
         const response = await axios.post(`${API_URL}/login`,
             { username, password });

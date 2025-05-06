@@ -12,7 +12,7 @@ router.post('/login', (req, res) => {
         if (err) {
             return res.status(500).json({ message: 'DB Error' });
         }
-        if (results.length === 0) {
+        else if (results.length === 0) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
         else {

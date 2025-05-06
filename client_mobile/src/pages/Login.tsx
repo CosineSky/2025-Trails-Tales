@@ -1,11 +1,16 @@
 // src/screens/LoginScreen.tsx
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Alert } from 'react-native';
+import {View, Text, StyleSheet, Alert, ImageBackground, Image} from 'react-native';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import { loginUser } from '../services/authService';
 import { useDispatch } from 'react-redux';
 import { login } from '../store/actions/authAction.ts';
+
+
+const logoImage = require('../assets/images/logo.png');
+const backgroundImage = require('../assets/images/login.jpg');
+
 
 const Login: React.FC = ({ navigation }: any) => {
     const [email, setEmail] = useState('');
@@ -23,27 +28,65 @@ const Login: React.FC = ({ navigation }: any) => {
     };
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Login</Text>
-            <Input value={email} onChangeText={setEmail} placeholder="Email" />
-            <Input value={password} onChangeText={setPassword} placeholder="Password" secureTextEntry />
-            <Button title="Login" onPress={handleLogin} />
-            <Button title="Register" onPress={() => navigation.navigate('Register')} />
-        </View>
+        <ImageBackground source={backgroundImage} style={styles.background} resizeMode="cover">
+            <View style={styles.overlay}>
+                <Image source={logoImage} alt="Logo" style={styles.logo} />
+                {/*<Text style={styles.title}>Login</Text>*/}
+                <Input value={email} onChangeText={setEmail} placeholder="Email" />
+                <Input value={password} onChangeText={setPassword} placeholder="Password" secureTextEntry />
+                <View style={styles.buttonRow}>
+                    <View style={styles.buttonWrapper}>
+                        <Button title="Login" onPress={handleLogin} />
+                    </View>
+                    <View style={styles.buttonWrapper}>
+                        <Button title="Register" onPress={() => navigation.navigate('Register')} backgroundColor="#6c757d" />
+                    </View>
+                </View>
+
+            </View>
+        </ImageBackground>
     );
 };
 
 const styles = StyleSheet.create({
+    background: {
+        flex: 1,
+        justifyContent: 'center',
+    },
+    overlay: {
+        flex: 1,
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        backgroundColor: 'rgba(255, 255, 255, 0.66)',
+    },
     container: {
         flex: 1,
         justifyContent: 'center',
         paddingHorizontal: 20,
+    },
+    logo: {
+        width: 250,
+        height: 250,
+        marginBottom: 20,
+        resizeMode: 'contain',
     },
     title: {
         fontSize: 24,
         textAlign: 'center',
         marginBottom: 20,
     },
+    buttonRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        gap: 10, // RN >= 0.71
+        marginTop: 10,
+    },
+    buttonWrapper: {
+        flex: 1,
+    },
+
 });
 
 export default Login;
