@@ -5,6 +5,8 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
 
+const HOST_IP = '115.175.40.241';
+
 export default function Login() {
     const navigate = useNavigate();
     const [username, setUsername] = useState('');
@@ -12,7 +14,7 @@ export default function Login() {
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        const res = await fetch('http://localhost:5000/api/login', {
+        const res = await fetch(`http://${HOST_IP}:5000/api/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password }),

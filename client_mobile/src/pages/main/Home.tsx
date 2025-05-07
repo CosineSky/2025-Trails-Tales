@@ -16,7 +16,7 @@ const logoImage = require('../../assets/images/logo.png');
 const backgroundImage = require('../../assets/images/home.jpg');
 
 
-const HOST_IP = "10.0.2.2"; // This gives 127.0.0.1 in host device.
+const HOST_IP = "115.175.40.241"; // This gives 127.0.0.1 in host device.
 const HOST_PORT = "5000";
 const API_URL = `http://${HOST_IP}:${HOST_PORT}/api`;
 
@@ -47,7 +47,7 @@ const Home: React.FC = ({ navigation }: any) => {
             const res = await fetch(`${API_URL}/journals/items?page=${page}&search=${search}`);
             const data = await res.json();
             console.log("Hello world: ", data);
-            setJournals(prev => [...prev, ...data]);
+            setJournals(prev => [...prev, ...(data || [])]);
         } catch (e) {
             console.error(e);
         } finally {

@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from 'jwt-decode';
 import { fetchProfile, updateProfile } from '../../services/profileService.ts';
 
-
+const defaultAvatar = 'http://bucket-cloudsky.oss-cn-nanjing.aliyuncs.com/1746532505514.jpg';
 const profileImage = require('../../assets/images/profile.jpg');
 
 interface DecodedToken {
@@ -18,8 +18,8 @@ interface DecodedToken {
 
 const UserInfo: React.FC = () => {
     const decodedUserToken = useRef<DecodedToken | null>(null);
-    const [avatar, setAvatar] = useState<string>(''); // 用户头像URL
-    const [nickname, setNickname] = useState<string>('John Doe'); // 用户昵称
+    const [avatar, setAvatar] = useState<string>(defaultAvatar); // 用户头像URL
+    const [nickname, setNickname] = useState<string>('Offline'); // 用户昵称
     const [isEditing, setIsEditing] = useState<boolean>(false); // 是否正在编辑
     const [newAvatar, setNewAvatar] = useState<string>(''); // 存储选择的新头像
 

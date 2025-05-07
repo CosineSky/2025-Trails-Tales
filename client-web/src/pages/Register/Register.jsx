@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
 
+const HOST_IP = '115.175.40.241';
+
 export default function Register() {
     const navigate = useNavigate();
     const [username, setUsername] = useState('');
@@ -18,7 +20,7 @@ export default function Register() {
             return;
         }
 
-        const res = await fetch('http://localhost:5000/api/register', {
+        const res = await fetch(`http://${HOST_IP}:5000/api/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password, role }), // 添加角色信息到请求体

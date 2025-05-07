@@ -23,6 +23,7 @@
     "react-native-image-picker": "^8.2.1",
     "react-native-safe-area-context": "^5.4.0",
     "react-native-screens": "^4.10.0",
+    "react-native-svg": "^15.11.2",
     "react-navigation": "^4.4.4",
     "react-redux": "^9.2.0",
     "redux": "^5.0.1"

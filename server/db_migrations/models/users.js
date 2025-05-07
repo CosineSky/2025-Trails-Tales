@@ -13,6 +13,16 @@ module.exports = (sequelize) => {
             allowNull: false,
             unique: true,
         },
+        nickname: {
+            type: DataTypes.STRING(50),
+            allowNull: true,
+            defaultValue: 'New Traveller',
+        },
+        avatar: {
+            type: DataTypes.STRING(250),
+            allowNull: true,
+            defaultValue: 'DEFAULT',
+        },
         password: {
             type: DataTypes.STRING(50),
             allowNull: false,

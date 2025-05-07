@@ -3,6 +3,9 @@ import React, {useState, useEffect, useMemo} from 'react';
 import { Table, Tag, Select, Space, Button, Modal, Input, message } from 'antd';
 import axios from "axios";
 
+const HOST_IP = '115.175.40.241';
+
+
 const { Option } = Select;
 const statusMap = {
     0: { text: '待审核', color: 'blue' },
@@ -89,7 +92,7 @@ const TravelNoteAdmin = () => {
 
 
     const handleApprove = (record) => {
-        axios.put(`http://localhost:5000/api/journals/approve/${record.id}`)
+        axios.put(`http://${HOST_IP}:5000/api/journals/approve/${record.id}`)
             .then((response) => {
                 message.success(response.data.message);
                 // 更新前端状态
@@ -127,7 +130,7 @@ const TravelNoteAdmin = () => {
 
                 console.log(inputReason, record.id);
 
-                axios.put(`http://localhost:5000/api/journals/reject/${record.id}`, { rejectionReason: inputReason })
+                axios.put(`http://${HOST_IP}:5000/api/journals/reject/${record.id}`, { rejectionReason: inputReason })
                     .then((response) => {
                         message.success(response.data.message);
                         // 更新前端状态
@@ -150,7 +153,7 @@ const TravelNoteAdmin = () => {
             title: '确认删除',
             content: `您确定要删除《${record.title}》这篇游记吗？`,
             onOk: () => {
-                axios.put(`http://localhost:5000/api/journals/delete/${record.id}`)
+                axios.put(`http://${HOST_IP}:5000/api/journals/delete/${record.id}`)
                     .then((response) => {
                         message.success(response.data.message);
                         // 更新前端状态
