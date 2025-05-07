@@ -40,7 +40,7 @@
     background: #ffffff;
     position: relative;
     padding: 10px 20px 80px;
-    box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
 }
 .login.loading button {
     max-height: 100%;
@@ -163,4 +163,27 @@ footer {
 footer a, footer a:link {
     color: #fff;
     text-decoration: none;
+}
+.icon-wrapper {
+    position: absolute;
+    left: 0;
+    margin-top: -55px;
+    margin-left: 10px;
+    height: 40px;
+    width: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 1s ease;
+    color: #ffffff;
+}
+
+.input-icon {
+    width: 32px;
+    height: 32px;
+}
+.login input:focus ~ .icon-wrapper {
+    opacity: 1;
+    transform: translateX(10px);
 }
