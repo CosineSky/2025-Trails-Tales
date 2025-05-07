@@ -5,9 +5,21 @@ pipeline {
         SERVER_DIR = 'server'
         CLIENT_WEB_DIR = 'client-web'
         CLIENT_MOBILE_DIR = 'client_mobile'
+        NODE_PATH = '/usr/local/nodejs/bin'
     }
 
     stages {
+        stage('Install Dependencies') {
+            steps {
+                script {
+                    // 将 Node.js 的路径添加到 PATH
+                    sh '''
+                        export PATH=$NODE_PATH:$PATH
+                    '''
+                }
+            }
+        }
+
         stage('Checkout') {
             steps {
                 // 显式指定 SCM 配置，避免凭证解析出错
