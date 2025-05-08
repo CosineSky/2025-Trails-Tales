@@ -13,7 +13,9 @@ router.put('/approve/:id', (req, res) => {
         if (err) {
             return res.status(500).json({ error: err.message });
         }
-        res.json({ message: '游记已通过审核' });
+        else {
+            return res.status(200).json({ message: '游记已通过审核' });
+        }
     });
 });
 
@@ -35,7 +37,9 @@ router.put('/reject/:id', (req, res) => {
         if (err) {
             return res.status(500).json({ error: err.message });
         }
-        res.json({ message: '游记已被拒绝' });
+        else {
+            return res.status(200).json({ message: '游记已被拒绝' });
+        }
     });
 });
 
@@ -48,7 +52,9 @@ router.put('/delete/:id', (req, res) => {
         if (err) {
             return res.status(500).json({ error: err.message });
         }
-        res.json({ message: '游记已删除' });
+        else {
+            return res.status(200).json({ message: '游记已删除' });
+        }
     });
 });
 

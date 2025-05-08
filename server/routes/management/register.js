@@ -18,8 +18,10 @@ router.post('/register', (req, res) => {
                 if (err) {
                     return res.status(500).json({ message: 'Insert error' });
                 }
+                else {
+                    return res.status(200).json({ message: 'Register successful' });
+                }
             });
-            return res.status(200).json({ message: 'Register successful' });
         }
     });
 });

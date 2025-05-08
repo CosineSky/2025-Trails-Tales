@@ -7,7 +7,23 @@ const app = express();
 const PORT = 5000;
 
 
-app.use(cors());
+const allowedOrigins = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'http://115.175.40.241:3000'
+];
+
+app.use(cors({
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+}));
+app.options('*', cors());
 app.use(express.json());
 
 // 路由模块

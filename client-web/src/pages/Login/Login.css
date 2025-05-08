@@ -36,11 +36,11 @@
 .login {
     border-radius: 2px 2px 5px 5px;
     width: 90%;
-    max-width: 320px;
+    max-width: 440px;
     background: #ffffff;
     position: relative;
     padding: 10px 20px 80px;
-    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.9);
 }
 .login.loading button {
     max-height: 100%;
