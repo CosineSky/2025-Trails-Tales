@@ -1,11 +1,12 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {useState} from "react";
-import {Image, ScrollView, StyleSheet, Text, View} from "react-native";
+import {Alert, Image, ScrollView, StyleSheet, Text, View} from "react-native";
 import Input from '../../components/Input';
 import Button from '../../components/Button';
 import {Asset} from "react-native-image-picker";
 import {handleFilePick, uploadSingleFile} from "../../services/selectAndUploadFile.ts";
 import {createJournal} from "../../services/journalService.ts";
+import {useSelector} from "react-redux";
 
 type Journal = {
     title : string;
@@ -15,20 +16,22 @@ type Journal = {
     pictures: Array<string>;
 }
 
-type Picture = {
-    journal_id : number;
-    resource_url : string;
-}
-
-function Icon(props: { name: string, size: number, color: string }) {
-    return null;
-}
-
-export default function publishJournal(){
+export default function publishJournal({navigation} : any){
     const [title, setTitle] = useState('')
     const [content, setContent] = useState('')
     const [pictures, setPictures] = useState<Asset[]>([])
     const [video, setVideo] = useState<Asset>()
+    //从token中解析出user信息
+    const user = useSelector((state: any) => state.auth.user);
+
+    // 检查是否已登录
+    useEffect(() => {
+        if (!user) {
+            Alert.alert('请先登录', '您尚未登录，请先登录以继续操作', [
+                { text: '确定', onPress: () => navigation.replace('Login') }
+            ]);
+        }
+    }, [user, navigation]);
 
     const handleSelectImages = async() =>{
         const selectedImages = await handleFilePick('photo',10);
@@ -47,13 +50,13 @@ export default function publishJournal(){
     const handlePublish = async() =>{
         //校验必须字段
         if (!title.trim()) {
-            alert('标题不能为空')
+            Alert.alert('标题不能为空')
         }
         if (!content.trim()) {
-            alert('内容不能为空')
+            Alert.alert('内容不能为空')
         }
         if (!pictures) {
-            alert('请选择图片')
+            Alert.alert('请选择图片')
         }
 
         //把选择的图片和视频上传到OSS
@@ -73,14 +76,6 @@ export default function publishJournal(){
         console.log(new_journal);
         await createJournal(new_journal)
         console.log(`Created journal.`)
-
-        // //创建picture对象，绑定刚才创建的Journal，并且存储到数据库中
-        // const pictures_to_save : Picture[] = pic_urls.map((url : string) => ({
-        //     journal_id,
-        //     resource_url : url
-        // }))
-        //
-        // pictures_to_save.map((picture : Picture) => createPicture(picture))
     }
 
     return(
@@ -105,10 +100,6 @@ export default function publishJournal(){
         </ScrollView>
     )
 
-}
-
-function alert(arg: string) {
-    throw new Error(arg);
 }
 
 const styles = StyleSheet.create({
