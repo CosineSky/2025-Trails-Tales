@@ -1,47 +1,54 @@
-import {launchImageLibrary} from "react-native-image-picker";
+import {Asset, launchImageLibrary, MediaType} from "react-native-image-picker";
 
 
 const HOST_IP = "115.175.40.241"; // This gives 127.0.0.1 in host device.
 const HOST_PORT = "5000";
 const API_URL = `http://${HOST_IP}:${HOST_PORT}/api`;
 
-
-export const handleImagePick = (): Promise<string | null> => {
+//需要指定文件类型、最多可以选择的文件个数
+export const handleFilePick = (mediaType : MediaType , maxCount : number = 1): Promise<Asset[] | null> => {
     return new Promise((resolve, reject) => {
-        launchImageLibrary({mediaType: 'photo'}, async (response) => {
+        //打开系统相册
+        launchImageLibrary(
+            //指定类型与最大文件个数
+            {mediaType: mediaType, selectionLimit: maxCount},
+            async (response) => {
             try {
+                //用户取消选择文件，或者没选择任何文件
                 if (response.didCancel || !response.assets) {
                     resolve(null);
                     return;
                 }
-
-                const asset = response.assets[0];
-                const uri = asset.uri;
-                const fileName = asset.fileName || 'image.jpg';
-                const type = asset.type || 'image/jpeg';
-
-                const formData = new FormData();
-                formData.append('avatar', {
-                    uri,
-                    name: fileName,
-                    type,
-                } as any); // React Native 的 FormData 类型可能需要断言
-
-                const res = await fetch(`${API_URL}/utils/oss`, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                });
-
-                const data = await res.json();
-                console.log('上传成功：', data.url);
-                resolve(data.url);
+                //获取所有文件信息
+                const assets = response.assets.slice(0, maxCount);
+                console.log('文件选择成功');
+                resolve(assets);
             } catch (err) {
-                console.error('上传失败', err);
+                console.error('选择失败', err);
                 reject(err);
             }
         });
     });
+};
+
+export const uploadSingleFile = async (asset: Asset): Promise<string> => {
+    const uri = asset.uri;
+    const fileName = asset.fileName || 'image.jpg';     // 如果没有文件名，使用默认值
+    const type = asset.type || 'image/jpeg';            //  如果没有类型，使用默认值
+
+    const formData = new FormData();
+    formData.append('avatar', {
+        uri,
+        name: fileName,
+        type,
+    } as any);
+
+    const res = await fetch(`${API_URL}/utils/oss`, {
+        method: 'POST',
+        body: formData,
+        headers: { 'Content-Type': 'multipart/form-data' }
+    });
+
+    const data = await res.json();
+    return data.url;
 };

@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Button, Image, StyleSheet, Text, TextInput, View } from 'react-native';
-import { handleImagePick } from '../../services/selectAndUploadFile.ts';
+import { handleFilePick, uploadSingleFile } from '../../services/selectAndUploadFile.ts';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from 'jwt-decode';
 import { fetchProfile, updateProfile } from '../../services/profileService.ts';
+import {Asset} from "react-native-image-picker";
 
 const defaultAvatar = 'http://bucket-cloudsky.oss-cn-nanjing.aliyuncs.com/1746532505514.jpg';
 const profileImage = require('../../assets/images/profile.jpg');
@@ -103,7 +104,8 @@ const UserInfo: React.FC = () => {
                     <Button
                         title="上传头像"
                         onPress={async () => {
-                            const uri = await handleImagePick();
+                            const pic = await handleFilePick('photo');
+                            const uri = await uploadSingleFile(pic?.[0] as Asset);
                             if (uri) {
                                 handleAvatarChange(uri); // 更新头像状态
                             }
