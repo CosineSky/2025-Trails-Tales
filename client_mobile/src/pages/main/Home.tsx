@@ -44,7 +44,7 @@ const Home: React.FC = ({ navigation }: any) => {
         try {
             const res = await fetch(`${API_URL}/journals/items?page=${page}&search=${search}`);
             const data = await res.json();
-            console.log("Hello world: ", data);
+            console.log("In Home Page: ", data);
             setJournals(prev => [...prev, ...(data || [])]);
         } catch (e) {
             console.error(e);

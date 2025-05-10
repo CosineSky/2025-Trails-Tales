@@ -5,6 +5,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from 'jwt-decode';
 import { fetchProfile, updateProfile } from '../../services/profileService.ts';
 import {Asset} from "react-native-image-picker";
+import {NavigationActions} from "react-navigation";
+import navigate = NavigationActions.navigate;
 
 const defaultAvatar = 'http://bucket-cloudsky.oss-cn-nanjing.aliyuncs.com/1746532505514.jpg';
 const profileImage = require('../../assets/images/profile.jpg');
@@ -17,7 +19,7 @@ interface DecodedToken {
     exp: number;
 }
 
-const UserInfo: React.FC = () => {
+const UserInfo: React.FC = ({ navigation }: any) => {
     const decodedUserToken = useRef<DecodedToken | null>(null);
     const [avatar, setAvatar] = useState<string>(defaultAvatar); // 用户头像URL
     const [nickname, setNickname] = useState<string>('Offline'); // 用户昵称
@@ -120,6 +122,9 @@ const UserInfo: React.FC = () => {
                 )}
 
                 <Text style={styles.info}>其他用户信息...</Text>
+                <Button title="To Login" onPress={() => {
+                    navigation.navigate('Login');
+                }}/>
             </View>
         </View>
     );

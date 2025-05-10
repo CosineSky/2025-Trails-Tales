@@ -9,13 +9,13 @@ router.get('/items', (req, res) => {
     const offset = (page - 1) * pageSize;
 
     let sql = `
-        SELECT 
-            journals.*, 
+        SELECT
+            journals.*,
             users.nickname AS owner_nickname,
             users.avatar AS owner_avatar_url
         FROM journals
-        LEFT JOIN users ON journals.owner_id = users.id
-        WHERE journals.status != 3
+                 LEFT JOIN users ON journals.owner_id = users.id
+        WHERE journals.status = 1
     `;
     let params = [];
 
@@ -51,9 +51,9 @@ router.get('/getById', (req, res) => {
     `;
 
     const picturesSql = `
-        SELECT 
-            resource_url 
-        FROM pictures 
+        SELECT
+            resource_url
+        FROM pictures
         WHERE journal_id = ?
     `;
 
@@ -70,6 +70,69 @@ router.get('/getById', (req, res) => {
 
             journal.pictures = picResults.map(row => row.resource_url);
             return res.status(200).json(journal);
+        });
+    });
+});
+
+
+router.get('/getByOwnerId', (req, res) => {
+    const ownerId = req.query.owner_id;
+
+    if (!ownerId) {
+        return res.status(400).json({ error: 'owner_id is required' });
+    }
+
+    const journalSql = `
+        SELECT
+            journals.*,
+            users.nickname AS owner_nickname,
+            users.avatar AS owner_avatar_url
+        FROM journals
+                 LEFT JOIN users ON journals.owner_id = users.id
+        WHERE journals.owner_id = ?
+        ORDER BY journals.created_at DESC
+    `;
+
+    const picturesSql = `
+        SELECT
+            journal_id,
+            resource_url
+        FROM pictures
+        WHERE journal_id IN (
+            SELECT id FROM journals WHERE owner_id = ?
+        )
+    `;
+
+    db.query(journalSql, [ownerId], (err, journalResults) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+
+        if (journalResults.length === 0) {
+            return res.status(200).json([]); // 返回空数组
+        }
+
+        db.query(picturesSql, [ownerId], (picErr, picResults) => {
+            if (picErr) {
+                return res.status(500).json({ error: picErr.message });
+            }
+
+            // 将图片归类到对应 journal
+            const pictureMap = {};
+            picResults.forEach(row => {
+                if (!pictureMap[row.journal_id]) {
+                    pictureMap[row.journal_id] = [];
+                }
+                pictureMap[row.journal_id].push(row.resource_url);
+            });
+
+            // 合并图片
+            const journalsWithPictures = journalResults.map(j => ({
+                ...j,
+                pictures: pictureMap[j.id] || []
+            }));
+
+            return res.status(200).json(journalsWithPictures);
         });
     });
 });

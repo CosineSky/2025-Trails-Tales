@@ -16,7 +16,7 @@ type Journal = {
     pictures: Array<string>;
 }
 
-export default function publishJournal({navigation} : any){
+export default function Post({navigation} : any){
     const [title, setTitle] = useState('')
     const [content, setContent] = useState('')
     const [pictures, setPictures] = useState<Asset[]>([])

@@ -6,6 +6,7 @@ import Login from '../pages/Login';
 import Register from '../pages/Register';
 import MainTabNavigator from "./MainTabNavigator.tsx";
 import Detail from "../pages/Detail.tsx";
+import Post from "../pages/main/Post.tsx";
 
 const Stack = createStackNavigator();
 
@@ -16,6 +17,7 @@ const AppNavigator: React.FC = () => (
             <Stack.Screen name="Register" component={Register} />
             <Stack.Screen name="Main" component={MainTabNavigator} />
             <Stack.Screen name="Detail" component={Detail} />
+            <Stack.Screen name="Post" component={Post} />
         </Stack.Navigator>
     </NavigationContainer>
 );
