@@ -1,4 +1,5 @@
 import {Asset, launchImageLibrary, MediaType} from "react-native-image-picker";
+import ImageResizer from "react-native-image-resizer";
 
 
 const HOST_IP = "115.175.40.241"; // This gives 127.0.0.1 in host device.
@@ -36,9 +37,29 @@ export const uploadSingleFile = async (asset: Asset): Promise<string> => {
     const fileName = asset.fileName || 'image.jpg';     // 如果没有文件名，使用默认值
     const type = asset.type || 'image/jpeg';            //  如果没有类型，使用默认值
 
+    if (uri === undefined){
+        throw new Error('文件路径为空');
+    }
+    //压缩图片
+    let compressedUri = uri;
+    if (type.startsWith('image/')) {
+        try {
+            const resizedImage = await ImageResizer.createResizedImage(
+                uri,
+                800,         // 最大宽度
+                800,        // 最大高度
+                'JPEG',     // 格式
+                70          // 质量百分比（70%）
+            );
+            compressedUri = resizedImage.uri; // 使用压缩后的 URI
+        } catch (error) {
+            console.warn('图片压缩失败，将使用原图上传', error);
+        }
+    }
+
     const formData = new FormData();
     formData.append('avatar', {
-        uri,
+        uri: compressedUri,
         name: fileName,
         type,
     } as any);
