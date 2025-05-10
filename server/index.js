@@ -31,6 +31,7 @@ const registerRoutes = require('./routes/management/register');
 const loginRoutes = require('./routes/management/login');
 const journalsRoutes = require('./routes/management/journals/items');
 const modifyRoutes = require('./routes/management/journals/modify');
+const uploadRoutes = require('./routes/management/journals/upload');
 const ossRoutes = require('./routes/app/utils/oss');
 const profileRoutes = require('./routes/app/users/profile');
 
@@ -39,6 +40,7 @@ app.use('/api', registerRoutes);
 app.use('/api', loginRoutes);
 app.use('/api/journals', journalsRoutes);
 app.use('/api/journals', modifyRoutes);
+app.use('/api/journals', uploadRoutes);
 app.use('/api/utils', ossRoutes);
 app.use('/api/users', profileRoutes);
 

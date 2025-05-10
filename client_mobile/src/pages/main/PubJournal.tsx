@@ -5,14 +5,14 @@ import Input from '../../components/Input';
 import Button from '../../components/Button';
 import {Asset} from "react-native-image-picker";
 import {handleFilePick, uploadSingleFile} from "../../services/selectAndUploadFile.ts";
-import {createJournals} from "../../services/JournalService.ts";
-import {createPicture} from "../../services/PictureService.ts";
+import {createJournal} from "../../services/journalService.ts";
 
 type Journal = {
     title : string;
     content : string;
     cover_url : string;
     video_url : string;
+    pictures: Array<string>;
 }
 
 type Picture = {
@@ -25,34 +25,34 @@ function Icon(props: { name: string, size: number, color: string }) {
 }
 
 export default function publishJournal(){
-    const [title,setTitle] = useState('')
-    const [content,setContent] = useState('')
-    const [pictures,setPictures] = useState<Asset[]>([])
-    const [video,setVideo] = useState<Asset>()
+    const [title, setTitle] = useState('')
+    const [content, setContent] = useState('')
+    const [pictures, setPictures] = useState<Asset[]>([])
+    const [video, setVideo] = useState<Asset>()
 
     const handleSelectImages = async() =>{
         const selectedImages = await handleFilePick('photo',10);
-        if(selectedImages){
+        if (selectedImages) {
             setPictures(selectedImages);
         }
     }
 
     const handleSelectVideo = async() =>{
         const selectedVideo = await handleFilePick( 'video',1);
-        if(selectedVideo){
+        if (selectedVideo) {
             setVideo(selectedVideo[0])
         }
     }
 
     const handlePublish = async() =>{
         //校验必须字段
-        if(!title.trim()){
+        if (!title.trim()) {
             alert('标题不能为空')
         }
-        if(!content.trim()){
+        if (!content.trim()) {
             alert('内容不能为空')
         }
-        if(!pictures){
+        if (!pictures) {
             alert('请选择图片')
         }
 
@@ -61,21 +61,26 @@ export default function publishJournal(){
         const video_url = video ? await uploadSingleFile(video) : ''        //可能没有上传视频
 
         //创建Journal对象，向后端请求添加游记
-        const new_journal : Journal = {
+        const new_journal: Journal = {
             title,
             content,
             cover_url : pic_urls[0] || '',
-            video_url : video_url || ''
+            video_url : video_url || '',
+            pictures: pic_urls,
         }
-        const journal_id : number = await createJournals(new_journal)
 
-        //创建picture对象，绑定刚才创建的Journal，并且存储到数据库中
-        const pictures_to_save : Picture[] = pic_urls.map((url : string) => ({
-            journal_id,
-            resource_url : url
-        }))
+        console.log(`Before creating journal:`);
+        console.log(new_journal);
+        await createJournal(new_journal)
+        console.log(`Created journal.`)
 
-        pictures_to_save.map((picture : Picture) => createPicture(picture))
+        // //创建picture对象，绑定刚才创建的Journal，并且存储到数据库中
+        // const pictures_to_save : Picture[] = pic_urls.map((url : string) => ({
+        //     journal_id,
+        //     resource_url : url
+        // }))
+        //
+        // pictures_to_save.map((picture : Picture) => createPicture(picture))
     }
 
     return(

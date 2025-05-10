@@ -26,7 +26,6 @@ type Journal = {
 };
 
 
-
 export default function Detail() {
     const route = useRoute<JournalDetailRouteProp>();
     const navigation = useNavigation<NavigationProp>();
@@ -77,12 +76,7 @@ export default function Detail() {
 
     return (
         <ScrollView style={styles.container}>
-            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-                <Text style={styles.backText}>← 返回</Text>
-            </TouchableOpacity>
-
-            {/*<Image source={{ uri: journal.cover_url }} style={styles.image} />*/}
-            <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false} style={styles.mediaScroll}>
+            <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={true} style={styles.mediaScroll}>
                 {journal.video_url ? (
                     <Video
                         source={{ uri: journal.video_url }}
