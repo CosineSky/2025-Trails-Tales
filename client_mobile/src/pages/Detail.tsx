@@ -1,22 +1,31 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, ScrollView, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { Video } from 'react-native-video';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../types/navigation.ts'; // 👈 自定义路由类型
+import { RootStackParamList } from '../types/navigation.ts';
 
 type JournalDetailRouteProp = RouteProp<RootStackParamList, 'JournalDetail'>;
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'JournalDetail'>;
+
+
+const HOST_IP = "115.175.40.241"; // This gives 127.0.0.1 in host device.
+const HOST_PORT = "5000";
+const API_URL = `http://${HOST_IP}:${HOST_PORT}/api`;
+
 
 type Journal = {
     id: string;
     title: string;
     content: string;
-    imageUrl: string;
-    author: {
-        avatar: string;
-        nickname: string;
-    };
+    cover_url: string;
+    video_url?: string | null;
+    pictures: string[];
+    owner_nickname: string;
+    owner_avatar_url: string;
 };
+
+
 
 export default function Detail() {
     const route = useRoute<JournalDetailRouteProp>();
@@ -27,27 +36,36 @@ export default function Detail() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // 模拟 API 调用（替换为你的真实接口）
         const fetchJournal = async () => {
-            setLoading(true);
-            // 你可以在这里使用 fetch(`/api/journals/${id}`) 来替代
-            setTimeout(() => {
+            try {
+                setLoading(true);
+                const response = await fetch(`${API_URL}/journals/getById?search=${id}`);
+                if (!response.ok) {
+                    console.log('Network response was not ok: ', response.json());
+                    return;
+                }
+                const data = await response.json();
+                console.log('Fetched journal data:', data);
                 setJournal({
-                    id,
-                    title: '探索丽江古城',
-                    content: '这是一次令人难忘的旅程，记录了我在丽江古城的美好时光...',
-                    imageUrl: 'https://images.pexels.com/photos/1248418/pexels-photo-1248418.jpeg?auto=compress&cs=tinysrgb&w=800',
-                    author: {
-                        avatar: 'https://images.pexels.com/photos/1248418/pexels-photo-1248418.jpeg?auto=compress&cs=tinysrgb&w=800',
-                        nickname: '旅行者小李',
-                    },
+                    id: data.id,
+                    title: data.title,
+                    content: data.content,
+                    cover_url: data.cover_url,
+                    video_url: data.video_url,
+                    pictures: data.pictures || [],
+                    owner_nickname: data.owner_nickname,
+                    owner_avatar_url: data.owner_avatar_url,
                 });
+            } catch (error) {
+                console.error('Fetch error:', error);
+            } finally {
                 setLoading(false);
-            }, 1000);
+            }
         };
 
-        fetchJournal().then(() => {});
+        fetchJournal().then(r => {});
     }, [id]);
+
 
     if (loading || !journal) {
         return (
@@ -63,13 +81,25 @@ export default function Detail() {
                 <Text style={styles.backText}>← 返回</Text>
             </TouchableOpacity>
 
-            <Image source={{ uri: journal.imageUrl }} style={styles.image} />
+            {/*<Image source={{ uri: journal.cover_url }} style={styles.image} />*/}
+            <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false} style={styles.mediaScroll}>
+                {journal.video_url ? (
+                    <Video
+                        source={{ uri: journal.video_url }}
+                        style={styles.mediaItem}
+                        resizeMode="cover"
+                    />
+                ) : null}
+                {journal.pictures.map((url, idx) => (
+                    <Image key={idx} source={{ uri: url }} style={styles.mediaItem} />
+                ))}
+            </ScrollView>
 
             <Text style={styles.title}>{journal.title}</Text>
 
             <View style={styles.authorRow}>
-                <Image source={{ uri: journal.author.avatar }} style={styles.avatar} />
-                <Text style={styles.nickname}>{journal.author.nickname}</Text>
+                <Image source={{ uri: journal.owner_avatar_url }} style={styles.avatar} />
+                <Text style={styles.nickname}>{journal.owner_nickname}</Text>
             </View>
 
             <Text style={styles.content}>{journal.content}</Text>
@@ -122,5 +152,17 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    mediaScroll: {
+        height: 240,
+        marginBottom: 16,
+        borderRadius: 12,
+        overflow: 'hidden',
+    },
+    mediaItem: {
+        width: 360, // 或 Dimensions.get('window').width
+        height: 240,
+        borderRadius: 12,
+        marginRight: 8,
     },
 });

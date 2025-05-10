@@ -26,10 +26,8 @@ type Journal = {
     title: string;
     content: string;
     cover_url: string;
-    // user: {
-    //     avatarUrl: string;
-    //     nickname: string;
-    // };
+    owner_nickname: string;
+    owner_avatar_url: string;
 };
 
 const Home: React.FC = ({ navigation }: any) => {
@@ -66,15 +64,17 @@ const Home: React.FC = ({ navigation }: any) => {
 
     const renderItem = (item: Journal) => (
         <TouchableOpacity
-            style={styles.card}
             onPress={() => navigation.navigate('Detail', { id: item.id })}
+            activeOpacity={0.8}
         >
-            {/*<Image source={{ uri: item.cover_url }} style={styles.image} />*/}
-            <Text style={styles.title}>{item.title}</Text>
-            {/*<View style={styles.userRow}>*/}
-            {/*    <Image source={{ uri: item.user.avatarUrl }} style={styles.avatar} />*/}
-            {/*    <Text style={styles.nickname}>{item.user.nickname}</Text>*/}
-            {/*</View>*/}
+            <View style={styles.footerContainer}>
+                <Text style={styles.title}>{item.title}</Text>
+                <Text style={styles.content} numberOfLines={6}>{item.content}</Text>
+                <View style={styles.userRow}>
+                     <Image source={{ uri: item.owner_avatar_url }} style={styles.avatar} />
+                     <Text style={styles.nickname}>{item.owner_nickname.substring(0, 10)}</Text>
+                </View>
+            </View>
         </TouchableOpacity>
     );
 
@@ -89,16 +89,21 @@ const Home: React.FC = ({ navigation }: any) => {
                     onSubmitEditing={onSearch}
                     style={styles.searchBar}
                 />
+
+
                 <MasonryList
                     images={journals.map(j => ({
                         ...j,
                         uri: j.cover_url,
-                        dimensions: { width: 200, height: 200 } // 固定宽高
+                        dimensions: { width: 200, height: 200, margin: 5 },
                     }))}
+                    style={{ width: 200, height: 200 }}
                     renderIndividualFooter={renderItem}
                     onEndReached={() => setPage(prev => prev + 1)}
                     onEndReachedThreshold={0.75}
                 />
+
+
                 {loading && <ActivityIndicator style={styles.loader} />}
             </View>
         </ImageBackground>
@@ -130,8 +135,20 @@ const styles = StyleSheet.create({
         marginBottom: 12,
         backgroundColor: 'rgba(222, 222, 222, 0.8)'
     },
-    image: { width: '100%', height: 200 },
-    title: { fontSize: 16, fontWeight: 'bold', padding: 8 },
+    image: {
+        width: '100%',
+        height: 200
+    },
+    title: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        paddingTop: 8,
+        paddingLeft: 4,
+    },
+    content: {
+        fontSize: 12,
+        paddingLeft: 4,
+    },
     userRow: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -143,8 +160,19 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         marginRight: 8
     },
-    nickname: { fontSize: 14, color: '#666' },
-    loader: { marginVertical: 10 }
+    nickname: {
+        fontSize: 14,
+        color: '#666'
+    },
+    loader: {
+        marginVertical: 10
+    },
+    footerContainer: {
+        width: 195,              // 确保跟图片一样宽
+        paddingHorizontal: 6,
+        paddingVertical: 4,
+        backgroundColor: 'rgba(255, 255, 255, 0.85)',
+    },
 });
 
 export default Home;
