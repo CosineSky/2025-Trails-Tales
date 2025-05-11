@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
     View,
     Text,
@@ -12,20 +12,20 @@ import {
     Share,
     TextInput, ImageBackground
 } from 'react-native';
-import { Video } from 'react-native-video';
+import {Video, VideoRef} from 'react-native-video';
 import Orientation from 'react-native-orientation-locker';
 import NetInfo from '@react-native-community/netinfo';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation.ts';
 import Svg, {Circle, Line, Path} from "react-native-svg";
-import {getLikeCount, likeJournal} from "../services/interactService.ts";
+import {getLikeCount, getLikeStatus, likeJournal, unlikeJournal} from "../services/interactService.ts";
 import {jwtDecode} from "jwt-decode";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type JournalDetailRouteProp = RouteProp<RootStackParamList, 'JournalDetail'>;
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'JournalDetail'>;
-const backgroundImage = require('../assets/images/home.jpg');
+const backgroundImage = require('../assets/images/bg/home.jpg');
 
 const HOST_IP = "115.175.40.241"; // This gives 127.0.0.1 in host device.
 const HOST_PORT = "5000";
@@ -46,21 +46,24 @@ type Journal = {
 
 
 export default function Detail() {
-    const route = useRoute<JournalDetailRouteProp>();
-    const navigation = useNavigation<NavigationProp>();
-    const { id } = route.params;
-    let currentUserId: number;
-
+    const videoRef = useRef<VideoRef>(null);
 
     const [journal, setJournal] = useState<Journal | null>(null);
     const [loading, setLoading] = useState(true);
-
-
     const [isPlaying, setIsPlaying] = useState(false);
     const [isFullscreen, setIsFullscreen] = useState(false);
+    const [videoProgress, setVideoProgress] = useState(0);
     const [appState, setAppState] = useState(AppState.currentState);
     const [showMiniPlayer, setShowMiniPlayer] = useState(false);
     const [comment, setComment] = useState(""); // 评论输入框的内容
+    const [isLiked, setIsLiked] = useState(false);
+    const [likeCount, setLikeCount] = useState(0);
+
+    const route = useRoute<JournalDetailRouteProp>();
+    const navigation = useNavigation<NavigationProp>();
+    const [currentUserId, setCurrentUserId] = useState(-1);
+    const { id } = route.params;
+
 
     const handleScroll = (event: any) => {
         const scrollY = event.nativeEvent.contentOffset.y;
@@ -72,9 +75,13 @@ export default function Detail() {
         const fetchToken = async () => {
             const token = await AsyncStorage.getItem('token') as string;
             const decoded: any = jwtDecode(token); // { userId, username, role }
-            currentUserId = decoded.userId;
+            setCurrentUserId(decoded.userId);
         }
-        fetchToken().then(() => {});
+        fetchToken().then(async () => {
+            // @ts-ignore
+            const likeStatus = await getLikeStatus(journal.id, currentUserId);
+            setIsLiked(likeStatus.liked);
+        });
     }, []);
 
 
@@ -155,9 +162,25 @@ export default function Detail() {
     const handleLike = async () => {
         try {
             // @ts-ignore
-            await likeJournal(journal.id, currentUserId); // journal_id, user_id
-            const { count } = await getLikeCount(123);
-            console.log('点赞成功，总数：', count);
+            const journalId = journal.id;
+            await likeJournal(journalId, currentUserId); // journal_id, user_id
+            const likeCountResult = await getLikeCount(journalId);
+            setLikeCount(likeCountResult.count);
+            setIsLiked(true);
+        } catch (err) {
+            console.error('点赞失败', err);
+        }
+    }
+
+
+    const handleUnlike = async () => {
+        try {
+            // @ts-ignore
+            const journalId = journal.id;
+            await unlikeJournal(journalId, currentUserId); // journal_id, user_id
+            const likeCountResult = await getLikeCount(journalId);
+            setLikeCount(likeCountResult.count);
+            setIsLiked(false);
         } catch (err) {
             console.error('点赞失败', err);
         }
@@ -185,105 +208,117 @@ export default function Detail() {
             </View>
         );
     }
+
+
+
     return (
         <ImageBackground source={backgroundImage} style={styles.background} resizeMode="cover">
-            <View style={{ flex: 1 }}>
-                <ScrollView onScroll={handleScroll} scrollEventThrottle={16} style={styles.container}>
-                    <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={true} style={styles.mediaScroll}>
-                        {journal.video_url ? (
-                            <TouchableOpacity
-                                activeOpacity={1}
-                                onPress={() => {
-                                    setIsFullscreen(true);
-                                    Orientation.lockToLandscape();
+            <ScrollView onScroll={handleScroll} style={styles.container}>
+                <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={true} style={styles.mediaScroll}>
+                    {journal.video_url ? (
+                        <TouchableOpacity
+                            activeOpacity={1}
+                            onPress={() => {
+                                setIsFullscreen(true);
+                                videoRef.current?.presentFullscreenPlayer(); // 进入视频全屏模式
+                            }}
+                        >
+                            <Video
+                                ref={videoRef}
+                                source={{ uri: journal.video_url }}
+                                style={styles.mediaItem} // 全屏时由系统控制，不用手动改 style
+                                resizeMode="cover"
+                                paused={!isPlaying}
+                                onProgress={(e) => setVideoProgress(e.currentTime)}
+                                onFullscreenPlayerDidDismiss={() => {
+                                    setIsFullscreen(false);
+                                    Orientation.lockToPortrait(); // 恢复竖屏
                                 }}
-                            >
-                                <Video
-                                    source={{ uri: journal.video_url }}
-                                    style={isFullscreen ? styles.fullscreenVideo : styles.mediaItem}
-                                    resizeMode="cover"
-                                    paused={!isPlaying}
-                                    onFullscreenPlayerDidDismiss={() => {
-                                        setIsFullscreen(false);
-                                        Orientation.lockToPortrait();
-                                    }}
-                                    onLoad={() => setIsPlaying(true)}
-                                    controls
-                                />
-                            </TouchableOpacity>
+                                onFullscreenPlayerDidPresent={() => {
+                                    Orientation.lockToLandscape(); // 全屏后强制横屏
+                                }}
+                                onLoad={() => setIsPlaying(true)}
+                                controls
+                            />
+                        </TouchableOpacity>
 
-                        ) : null}
-                        {journal.pictures.map((url, idx) => (
-                            <Image key={idx} source={{ uri: url }} style={styles.mediaItem} />
-                        ))}
-                    </ScrollView>
-
-
-                    <Text style={styles.title}>{journal.title}</Text>
-
-                    <View style={styles.authorRow}>
-                        <Image source={{ uri: journal.owner_avatar_url }} style={styles.avatar} />
-                        <Text style={styles.nickname}>{journal.owner_nickname}</Text>
-                    </View>
-
-                    {/* 水平分割线 */}
-                    <View style={styles.separator} />
-
-                    <Text style={styles.content}>{journal.content}</Text>
-                    <Text style={styles.datetime}>{'发布时间：' + journal.created_at.substring(0, 10)}</Text>
+                    ) : null}
+                    {journal.pictures.map((url, idx) => (
+                        <Image key={idx} source={{ uri: url }} style={styles.mediaItem} />
+                    ))}
                 </ScrollView>
 
-
-
-                {/* 固定底部栏 */}
-                <View style={styles.bottomBar}>
-                    <TouchableOpacity style={styles.iconContainer} onPress={handleLike}>
-                        <Svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                            <Path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#40adba" />
-                        </Svg>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={styles.iconContainer} onPress={handleShare}>
-                        <Svg width="24" height="24" viewBox="0 0 24 24" fill="#40adba"
-                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <Circle cx="18" cy="5" r="3" stroke="#40adba" fill="#40adba"/>
-                            <Circle cx="6" cy="12" r="3" stroke="#40adba" fill="#40adba"/>
-                            <Circle cx="18" cy="19" r="3" stroke="#40adba" fill="#40adba"/>
-                            <Line x1="8.59" x2="15.42" y1="13.51" y2="17.49" stroke="#40adba"/>
-                            <Line x1="15.41" x2="8.59" y1="6.51" y2="10.49" stroke="#40adba"/>
-                        </Svg>
-                    </TouchableOpacity>
-
-                    {/* 评论输入框和发送按钮 */}
-                    <View style={styles.commentInputContainer}>
-                        <TextInput
-                            style={styles.commentInput}
-                            value={comment}
-                            onChangeText={setComment}
-                            placeholder="写评论..."
-                        />
-                        <TouchableOpacity style={styles.sendButton} onPress={handleCommentSubmit}>
-                            <Text style={styles.sendButtonText}>发送</Text>
-                        </TouchableOpacity>
-                    </View>
+                <Text style={styles.title}>{journal.title}</Text>
+                <View style={styles.authorRow}>
+                    <Image source={{ uri: journal.owner_avatar_url }} style={styles.avatar} />
+                    <Text style={styles.nickname}>{journal.owner_nickname}</Text>
                 </View>
+                <View style={styles.separator} />
+                <Text style={styles.content}>{journal.content}</Text>
+                <Text style={styles.datetime}>{'发布时间：' + journal.created_at.substring(0, 10)}</Text>
+            </ScrollView>
 
-
-                {/*Mini Window*/}
-                {showMiniPlayer && journal.video_url && (
-                    <View style={styles.miniPlayer}>
-                        <Video
-                            source={{ uri: journal.video_url }}
-                            style={{ width: 160, height: 90 }}
-                            resizeMode="cover"
-                            paused={!isPlaying}
-                            controls
-                        />
-                    </View>
-                )}
+            <View style={styles.bottomBar}>
+                <View style={styles.iconWrapper}>
+                    {isLiked ? (
+                        <TouchableOpacity style={styles.iconContainer} onPress={handleUnlike}>
+                            <Svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                                <Path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
+                             2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09
+                             3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4
+                             6.86-8.55 11.54L12 21.35z" fill="#ff415d" />
+                            </Svg>
+                        </TouchableOpacity>
+                    ) : (
+                        <TouchableOpacity style={styles.iconContainer} onPress={handleLike}>
+                            <Svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                                <Path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
+                             2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09
+                             3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4
+                             6.86-8.55 11.54L12 21.35z" fill="#40adba" />
+                            </Svg>
+                        </TouchableOpacity>
+                    )}
+                    <Text style={styles.likeCountText}>{likeCount}</Text>
+                </View>
+                <TouchableOpacity style={styles.iconContainer} onPress={handleShare}>
+                    <Svg width="24" height="24" viewBox="0 0 24 24" fill="#40adba"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <Circle cx="18" cy="5" r="3" stroke="#40adba" fill="#40adba"/>
+                        <Circle cx="6" cy="12" r="3" stroke="#40adba" fill="#40adba"/>
+                        <Circle cx="18" cy="19" r="3" stroke="#40adba" fill="#40adba"/>
+                        <Line x1="8.59" x2="15.42" y1="13.51" y2="17.49" stroke="#40adba"/>
+                        <Line x1="15.41" x2="8.59" y1="6.51" y2="10.49" stroke="#40adba"/>
+                    </Svg>
+                </TouchableOpacity>
+                <View style={styles.commentInputContainer}>
+                    <TextInput
+                        style={styles.commentInput}
+                        value={comment}
+                        onChangeText={setComment}
+                        placeholder="写评论..."
+                    />
+                    <TouchableOpacity style={styles.sendButton} onPress={handleCommentSubmit}>
+                        <Text style={styles.sendButtonText}>发送</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
+
+            {showMiniPlayer && journal.video_url && (
+                <View style={styles.miniPlayer}>
+                    <Video
+                        source={{ uri: journal.video_url }}
+                        style={{ width: 160, height: 90 }}
+                        resizeMode="cover"
+                        paused={!isPlaying}
+                        controls
+                    />
+                </View>
+            )}
         </ImageBackground>
     );
+
+
 }
 
 const styles = StyleSheet.create({
@@ -292,6 +327,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     container: {
+        flex: 1,
         padding: 16,
         backgroundColor: 'rgba(255, 255, 255, 0.8)'
     },
@@ -347,6 +383,7 @@ const styles = StyleSheet.create({
         marginBottom: 16,
         borderRadius: 12,
         overflow: 'hidden',
+        flexShrink: 0,
     },
     mediaItem: {
         width: 360, // 或 Dimensions.get('window').width
@@ -384,6 +421,16 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginLeft: 10,
         marginRight: 2,
+    },
+    iconWrapper: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginLeft: 5,
+    },
+    likeCountText: {
+        fontSize: 12,
+        color: '#888',
+        marginLeft: 10
     },
     commentInputContainer: {
         flexDirection: 'row',

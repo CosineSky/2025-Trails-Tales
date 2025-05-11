@@ -10,16 +10,14 @@ import {
     ImageBackground
 } from 'react-native';
 import MasonryList from 'react-native-masonry-list';
-
+import Svg, { Circle, Path } from "react-native-svg";
 
 const logoImage = require('../../assets/images/logo.png');
-const backgroundImage = require('../../assets/images/home.jpg');
+const backgroundImage = require('../../assets/images/bg/home.jpg');
 
-
-const HOST_IP = "115.175.40.241"; // This gives 127.0.0.1 in host device.
+const HOST_IP = "115.175.40.241";
 const HOST_PORT = "5000";
 const API_URL = `http://${HOST_IP}:${HOST_PORT}/api`;
-
 
 type Journal = {
     id: string;
@@ -35,31 +33,64 @@ const Home: React.FC = ({ navigation }: any) => {
     const [search, setSearch] = useState('');
     const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
 
-    const fetchJournals = useCallback(async () => {
-        if (loading) {
-            return;
-        }
-        setLoading(true);
+    const fetchJournals = useCallback(async (isRefresh = false, searchQuery = '') => {
+        if (loading && !isRefresh) return;
+
+        isRefresh ? setRefreshing(true) : setLoading(true);
+
         try {
-            const res = await fetch(`${API_URL}/journals/items?page=${page}&search=${search}`);
+            const pageToLoad = isRefresh ? 1 : page;
+            const res = await fetch(`${API_URL}/journals/items?page=${pageToLoad}&search=${searchQuery}`);
             const data = await res.json();
             console.log("In Home Page: ", data);
-            setJournals(prev => [...prev, ...(data || [])]);
+
+            if (isRefresh) {
+                setJournals(data);
+                setHasMore(data.length > 0);
+            } else {
+                if (data.length > 0) {
+                    setJournals(prev => [...prev, ...data]);
+                } else {
+                    setHasMore(false);
+                }
+            }
         } catch (e) {
             console.error(e);
         } finally {
-            setLoading(false);
+            isRefresh ? setRefreshing(false) : setLoading(false);
         }
-    }, [page, search]);
+    }, [page, loading]);
 
     useEffect(() => {
-        fetchJournals().then(() => {});
-    }, [page, search]);
+        if (page === 1) {
+            return;
+        } // 避免初始页面调用重复执行
+        console.log(`Calling fetchJournals() from useEffect watching page, page = ${page}`);
+        fetchJournals(false, search).then(r => {});
+    }, [page]);
+
 
     const onSearch = () => {
-        setJournals([]);
-        setPage(1); // 重置分页
+        setHasMore(true);
+        setPage(1);
+        console.log(`Calling fetchJournals() from onSearch(), page = ${page}`);
+        fetchJournals(true, search).then(r => {});
+    };
+
+    const handleRefresh = () => {
+        setPage(1);
+        setHasMore(true);
+        console.log(`Calling fetchJournals() from handleRefresh(), page = ${page}`);
+        fetchJournals(true, search).then(r => {});
+    };
+
+    const handleLoadMore = () => {
+        if (hasMore && !loading) {
+            setPage(prev => prev + 1);
+        }
     };
 
     const renderItem = (item: Journal) => (
@@ -71,40 +102,56 @@ const Home: React.FC = ({ navigation }: any) => {
                 <Text style={styles.title}>{item.title}</Text>
                 <Text style={styles.content} numberOfLines={6}>{item.content}</Text>
                 <View style={styles.userRow}>
-                     <Image source={{ uri: item.owner_avatar_url }} style={styles.avatar} />
-                     <Text style={styles.nickname}>{item.owner_nickname.substring(0, 10)}</Text>
+                    <Image source={{ uri: item.owner_avatar_url }} style={styles.avatar} />
+                    <Text style={styles.nickname}>{item.owner_nickname.substring(0, 10)}</Text>
                 </View>
             </View>
         </TouchableOpacity>
     );
 
-
     return (
         <ImageBackground source={backgroundImage} style={styles.background} resizeMode="cover">
             <View style={styles.container}>
-                <TextInput
-                    placeholder="搜索标题或作者..."
-                    value={search}
-                    onChangeText={setSearch}
-                    onSubmitEditing={onSearch}
-                    style={styles.searchBar}
-                />
-
-
+                <View style={{ display: 'flex', flexDirection: 'row' }}>
+                    <Svg style={{ marginTop: 18, marginRight: 6 }} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <Path d="M11.5 15H7a4 4 0 0 0-4 4v2" />
+                        <Path
+                            d="M21.378 16.626a1 1 0 0 0-3.004-3.004l-4.01 4.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z" />
+                        <Circle cx="10" cy="7" r="4" />
+                    </Svg>
+                    <TextInput
+                        placeholder="搜索标题或作者..."
+                        value={search}
+                        onChangeText={setSearch}
+                        onSubmitEditing={onSearch}
+                        style={styles.searchBar}
+                    />
+                </View>
                 <MasonryList
                     images={journals.map(j => ({
                         ...j,
                         uri: j.cover_url,
                         dimensions: { width: 200, height: 200, margin: 5 },
+                        key: j.id
                     }))}
                     style={{ width: 200, height: 200 }}
                     renderIndividualFooter={renderItem}
-                    onEndReached={() => setPage(prev => prev + 1)}
-                    onEndReachedThreshold={0.75}
+                    onEndReached={handleLoadMore}
+                    onEndReachedThreshold={0.9}
+                    refreshing={refreshing}
+                    onRefresh={handleRefresh}
+                    ListFooterComponent={
+                        !hasMore && journals.length > 0 ? (
+                            <Text style={styles.endText}>已经到底啦~</Text>
+                        ) : null
+                    }
                 />
 
-
                 {loading && <ActivityIndicator style={styles.loader} />}
+                {journals.length === 0 && !loading && (
+                    <Text style={styles.noDataText}>暂无数据</Text>
+                )}
             </View>
         </ImageBackground>
     );
@@ -128,16 +175,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         borderColor: '#ccc',
         backgroundColor: 'rgba(255, 255, 255, 0.75)',
-    },
-    card: {
-        borderRadius: 12,
-        overflow: 'hidden',
-        marginBottom: 12,
-        backgroundColor: 'rgba(222, 222, 222, 0.8)'
-    },
-    image: {
-        width: '100%',
-        height: 200
+        flex: 1,
     },
     title: {
         fontSize: 16,
@@ -168,10 +206,21 @@ const styles = StyleSheet.create({
         marginVertical: 10
     },
     footerContainer: {
-        width: 195,              // 确保跟图片一样宽
+        width: 195,
         paddingHorizontal: 6,
         paddingVertical: 4,
         backgroundColor: 'rgba(255, 255, 255, 0.85)',
+    },
+    endText: {
+        textAlign: 'center',
+        color: '#999',
+        marginVertical: 10,
+    },
+    noDataText: {
+        textAlign: 'center',
+        color: '#999',
+        marginVertical: 20,
+        fontSize: 16,
     },
 });
 

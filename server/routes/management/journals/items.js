@@ -89,7 +89,7 @@ router.get('/getByOwnerId', (req, res) => {
             users.avatar AS owner_avatar_url
         FROM journals
                  LEFT JOIN users ON journals.owner_id = users.id
-        WHERE journals.owner_id = ?
+        WHERE journals.owner_id = ? AND journals.status != 3
         ORDER BY journals.created_at DESC
     `;
 

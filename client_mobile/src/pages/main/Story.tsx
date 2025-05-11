@@ -4,6 +4,7 @@ import {
 } from 'react-native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {jwtDecode} from "jwt-decode";
+import axios from "axios";
 
 const API_URL = "http://115.175.40.241:5000/api";
 
@@ -47,26 +48,6 @@ const MyJournalsScreen: React.FC = ({ navigation }: any) => {
     }, []);
 
 
-    const deleteJournal = async (id: string) => {
-        try {
-            await fetch(`${API_URL}/journals/${id}`, {
-                method: 'DELETE'
-            });
-            setJournals(prev => prev.filter(j => j.id !== id));
-        } catch (err) {
-            console.error(err);
-        }
-    };
-
-
-    const confirmDelete = (id: string) => {
-        Alert.alert('确认删除', '确定要删除这篇游记吗？', [
-            { text: '取消', style: 'cancel' },
-            { text: '删除', style: 'destructive', onPress: () => deleteJournal(id) }
-        ]);
-    };
-
-
     const renderStatus = (status: number, reason?: string) => {
         switch (status) {
             case 0: return <Text style={styles.pending}>待审核</Text>;
@@ -81,31 +62,30 @@ const MyJournalsScreen: React.FC = ({ navigation }: any) => {
         }
     };
 
+
     const onEdit = (id: any) => {
 
     }
 
-    const onDelete = (id: any) => {
 
+    const onDelete = (id: any) => {
+        console.log("Hi")
+        Alert.alert('确认删除', '确定要删除这篇游记吗？', [
+            { text: '取消', style: 'cancel' },
+            { text: '删除', style: 'destructive', onPress: async () => {
+                    axios.put(`${API_URL}/journals/delete/${id}`)
+                        .then((response) => {
+                            console.log('删除成功！');
+                            const updatedJournals = journals.filter(journal => journal.id !== id);
+                            setJournals(updatedJournals);
+                        })
+                        .catch((err) => {
+                            console.log('删除失败: ' + err);
+                        });
+                }}
+        ]);
     }
 
-
-    const renderItem = ({ item }: { item: Journal }) => (
-        <View style={styles.card}>
-            <Text style={styles.title}>{item.title}</Text>
-            {renderStatus(item.status, item.detail_status)}
-            <View style={styles.actions}>
-                {(item.status === 0 || item.status === 2) && (
-                    <TouchableOpacity onPress={() => navigation.navigate('Home', { id: item.id })}>
-                        <Text style={styles.edit}>编辑</Text>
-                    </TouchableOpacity>
-                )}
-                <TouchableOpacity onPress={() => confirmDelete(item.id)}>
-                    <Text style={styles.delete}>删除</Text>
-                </TouchableOpacity>
-            </View>
-        </View>
-    );
 
     return (
         <View style={styles.container}>

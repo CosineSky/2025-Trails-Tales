@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
-    return sequelize.define('likes', {
+    return sequelize.define('comments', {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -21,7 +21,7 @@ module.exports = (sequelize) => {
             allowNull: true,
         },
     }, {
-        tableName: 'likes',
+        tableName: 'comments',
         timestamps: false,
     });
 };

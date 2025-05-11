@@ -32,9 +32,9 @@ app.use('/api/utils', ossRoutes);
 app.use('/api/users', profileRoutes);
 app.use('/api/journals', uploadRoutes);
 
-app.use('/api/like', likeRoutes);
-app.use('/api/follow', followRoutes);
-app.use('/api/comment', commentRoutes);
+app.use('/api', likeRoutes);
+app.use('/api', followRoutes);
+app.use('/api', commentRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);

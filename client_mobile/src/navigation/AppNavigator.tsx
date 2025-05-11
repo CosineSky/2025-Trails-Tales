@@ -13,11 +13,11 @@ const Stack = createStackNavigator();
 const AppNavigator: React.FC = () => (
     <NavigationContainer>
         <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: true }}>
-            <Stack.Screen name="Login" component={Login} />
-            <Stack.Screen name="Register" component={Register} />
-            <Stack.Screen name="Main" component={MainTabNavigator} />
-            <Stack.Screen name="Detail" component={Detail} />
-            <Stack.Screen name="Post" component={Post} />
+            <Stack.Screen name="Login" component={Login} options={{ title: '登录' }} />
+            <Stack.Screen name="Register" component={Register} options={{ title: '注册' }} />
+            <Stack.Screen name="Main" component={MainTabNavigator} options={{ title: '足迹与故事' }} />
+            <Stack.Screen name="Detail" component={Detail} options={{ title: '足迹详情' }} />
+            <Stack.Screen name="Post" component={Post} options={{ title: '新的故事' }} />
         </Stack.Navigator>
     </NavigationContainer>
 );

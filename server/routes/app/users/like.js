@@ -48,4 +48,25 @@ router.get('/like/count/:journal_id', (req, res) => {
 });
 
 
+// 判断是否已点赞
+router.get('/like/status', (req, res) => {
+    const { journal_id, user_id } = req.query;
+    console.log(journal_id, user_id);
+
+    if (!journal_id || !user_id) {
+        return res.status(400).json({ error: '缺少 journal_id 或 user_id 参数' });
+    }
+
+    const sql = 'SELECT 1 FROM likes WHERE journal_id = ? AND user_id = ? LIMIT 1';
+    db.query(sql, [journal_id, user_id], (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+
+        const liked = results.length > 0;
+        return res.status(200).json({ liked });  // 返回 { liked: true } 或 { liked: false }
+    });
+});
+
+
 module.exports = router;

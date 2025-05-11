@@ -1,15 +1,16 @@
 // src/components/Button.tsx
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import {TouchableOpacity, Text, StyleSheet, ViewStyle} from 'react-native';
 
 interface ButtonProps {
-    title: string;
-    onPress: () => void;
-    backgroundColor?: string;
+    title: string,
+    onPress: () => void,
+    backgroundColor?: string,
+    style?: ViewStyle
 }
 
-const Button: React.FC<ButtonProps> = ({ title, onPress, backgroundColor = '#40adba' }) => (
-    <TouchableOpacity style={[styles.button, { backgroundColor }]} onPress={onPress}>
+const Button: React.FC<ButtonProps> = ({title, onPress, backgroundColor = '#40adba', style}) => (
+    <TouchableOpacity style={[styles.button, {backgroundColor}]} onPress={onPress}>
         <Text style={styles.buttonText}>{title}</Text>
     </TouchableOpacity>
 );
