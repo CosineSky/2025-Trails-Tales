@@ -1,9 +1,12 @@
-// routes/login.js
 const express = require('express');
 const router = express.Router();
 const db = require('../../db');
 const jwt = require('jsonwebtoken');
 
+
+/*
+    Login
+ */
 router.post('/login', (req, res) => {
     const { username, password } = req.body;
     console.log(username, password);
@@ -19,7 +22,7 @@ router.post('/login', (req, res) => {
             const user = results[0];
             const token = jwt.sign(
                 { userId: user.id, username: user.username, role: user.role },
-                'your-secret-key',
+                'i-dont-know-what-to-put-here',
                 { expiresIn: '24h' }
             );
             return res.status(200).json({ token });
@@ -27,5 +30,6 @@ router.post('/login', (req, res) => {
 
     });
 });
+
 
 module.exports = router;

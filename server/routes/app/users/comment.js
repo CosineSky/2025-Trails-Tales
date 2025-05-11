@@ -3,7 +3,9 @@ const router = express.Router();
 const db = require('../../../db');
 
 
-// 发布评论
+/*
+    Posting a comment.
+ */
 router.post('/comment', (req, res) => {
     const { journal_id, user_id, comment } = req.body;
     const sql = 'INSERT INTO comments (journal_id, user_id, comment, created_at) VALUES (?, ?, ?, NOW())';
@@ -18,7 +20,9 @@ router.post('/comment', (req, res) => {
 });
 
 
-// 获取评论列表
+/*
+    Retrieving comment list.
+ */
 router.get('/comment/:journal_id', (req, res) => {
     const { journal_id } = req.params;
     const sql = 'SELECT * FROM comments WHERE journal_id = ? ORDER BY created_at DESC';

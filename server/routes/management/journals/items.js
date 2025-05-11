@@ -2,6 +2,10 @@ const express = require('express');
 const router = express.Router();
 const db = require('../../../db');
 
+
+/*
+    Getting a list of journals
+ */
 router.get('/items', (req, res) => {
     const search = req.query.search;
     const page = parseInt(req.query.page) || 1;
@@ -37,6 +41,9 @@ router.get('/items', (req, res) => {
 });
 
 
+/*
+    Getting the detailed information by journal ID.
+ */
 router.get('/getById', (req, res) => {
     const targetId = req.query.search;
 
@@ -49,7 +56,6 @@ router.get('/getById', (req, res) => {
                  LEFT JOIN users ON journals.owner_id = users.id
         WHERE journals.id = ?
     `;
-
     const picturesSql = `
         SELECT
             resource_url
@@ -75,6 +81,9 @@ router.get('/getById', (req, res) => {
 });
 
 
+/*
+    Getting journal list posted by the target user, only those not deleted.
+ */
 router.get('/getByOwnerId', (req, res) => {
     const ownerId = req.query.owner_id;
 
@@ -107,17 +116,14 @@ router.get('/getByOwnerId', (req, res) => {
         if (err) {
             return res.status(500).json({ error: err.message });
         }
-
         if (journalResults.length === 0) {
-            return res.status(200).json([]); // 返回空数组
+            return res.status(200).json([]);
         }
 
         db.query(picturesSql, [ownerId], (picErr, picResults) => {
             if (picErr) {
                 return res.status(500).json({ error: picErr.message });
             }
-
-            // 将图片归类到对应 journal
             const pictureMap = {};
             picResults.forEach(row => {
                 if (!pictureMap[row.journal_id]) {

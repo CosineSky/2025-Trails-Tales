@@ -101,21 +101,6 @@ export default function Post({navigation}: any) {
             return;
         }
 
-        // const pic_urls = await Promise.all(pictures.map((pic: Asset) => uploadSingleFile(pic)));
-        // const video_url = video ? await uploadSingleFile(video) : '';
-        //
-        // const new_journal: Journal = {
-        //     title,
-        //     content,
-        //     cover_url: pic_urls[0] || '',
-        //     video_url: video_url || '',
-        //     pictures: pic_urls,
-        // };
-        //
-        // console.log('Before creating journal:', new_journal);
-        // await createJournal(new_journal);
-        // console.log('Created journal.');
-
 
         const pic_urls = await Promise.all(pictures.map((pic: Asset) => uploadSingleFile(pic)));
         const video_url = video ? await uploadSingleFile(video) : '';

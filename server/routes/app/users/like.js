@@ -3,7 +3,9 @@ const router = express.Router();
 const db = require('../../../db');
 
 
-// 点赞
+/*
+    Like.
+ */
 router.post('/like', (req, res) => {
     const { journal_id, user_id } = req.body;
     const sql = 'INSERT INTO likes (journal_id, user_id) VALUES (?, ?)';
@@ -12,13 +14,15 @@ router.post('/like', (req, res) => {
             return res.status(500).json({ error: err.message });
         }
         else {
-            return res.status(200).json({ message: '点赞成功' });
+            return res.status(200).json({ message: 'Liked!' });
         }
     });
 });
 
 
-// 取消点赞
+/*
+    Dislike.
+ */
 router.delete('/like', (req, res) => {
     const { journal_id, user_id } = req.body;
     const sql = 'DELETE FROM likes WHERE journal_id = ? AND user_id = ?';
@@ -27,13 +31,15 @@ router.delete('/like', (req, res) => {
             return res.status(500).json({ error: err.message });
         }
         else {
-            return res.status(200).json({ message: '已取消点赞' });
+            return res.status(200).json({ message: 'Disliked!' });
         }
     });
 });
 
 
-// 获取某篇游记的点赞数
+/*
+    Getting the amount of likes of a journal.
+ */
 router.get('/like/count/:journal_id', (req, res) => {
     const { journal_id } = req.params;
     const sql = 'SELECT COUNT(*) AS count FROM likes WHERE journal_id = ?';
@@ -48,13 +54,14 @@ router.get('/like/count/:journal_id', (req, res) => {
 });
 
 
-// 判断是否已点赞
+/*
+    Decide if a user liked a specific journal.
+ */
 router.get('/like/status', (req, res) => {
     const { journal_id, user_id } = req.query;
-    console.log(journal_id, user_id);
 
     if (!journal_id || !user_id) {
-        return res.status(400).json({ error: '缺少 journal_id 或 user_id 参数' });
+        return res.status(400).json({ error: 'Missing journal_id or user_id!' });
     }
 
     const sql = 'SELECT 1 FROM likes WHERE journal_id = ? AND user_id = ? LIMIT 1';
@@ -64,7 +71,7 @@ router.get('/like/status', (req, res) => {
         }
 
         const liked = results.length > 0;
-        return res.status(200).json({ liked });  // 返回 { liked: true } 或 { liked: false }
+        return res.status(200).json({ liked });  // Returns { liked: true | false }
     });
 });
 

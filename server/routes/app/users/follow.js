@@ -3,7 +3,9 @@ const router = express.Router();
 const db = require('../../../db');
 
 
-// 关注
+/*
+    Follow.
+ */
 router.post('/follow', (req, res) => {
     const { follower_id, followee_id } = req.body;
     const sql = 'INSERT INTO follows (follower_id, followee_id) VALUES (?, ?)';
@@ -18,7 +20,9 @@ router.post('/follow', (req, res) => {
 });
 
 
-// 取消关注
+/*
+    Unfollow.
+ */
 router.delete('/follow', (req, res) => {
     const { follower_id, followee_id } = req.body;
     const sql = 'DELETE FROM follows WHERE follower_id = ? AND followee_id = ?';
@@ -33,7 +37,9 @@ router.delete('/follow', (req, res) => {
 });
 
 
-// 获取关注数和粉丝数
+/*
+    Getting the amount of followers & followees.
+ */
 router.get('/follow/stats/:user_id', (req, res) => {
     const { user_id } = req.params;
 

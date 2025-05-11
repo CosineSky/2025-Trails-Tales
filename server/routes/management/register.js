@@ -1,8 +1,11 @@
-// routes/register.js
 const express = require('express');
 const router = express.Router();
 const db = require('../../db');
 
+
+/*
+    Register
+ */
 router.post('/register', (req, res) => {
     const { username, password, role } = req.body;
 
@@ -25,5 +28,6 @@ router.post('/register', (req, res) => {
         }
     });
 });
+
 
 module.exports = router;

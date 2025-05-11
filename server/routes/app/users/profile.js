@@ -2,12 +2,14 @@ const express = require('express');
 const router = express.Router();
 const db = require('../../../db');
 
-// 修改用户信息
+
+/*
+    Modifying the user's profile
+ */
 router.post('/profile/update', (req, res) => {
-    console.log("target: ", req.body);
     const { id, nickname, avatar } = req.body;
     if (!nickname || !avatar) {
-        return res.status(400).json({ error: '昵称和头像URL不能为空' });
+        return res.status(400).json({ error: 'Nickname or avatar can\'t be empty!' });
     }
 
     const sql = 'UPDATE users SET nickname = ?, avatar = ? WHERE id = ?';
@@ -16,18 +18,19 @@ router.post('/profile/update', (req, res) => {
             return res.status(500).json({ error: err.message });
         }
         else if (result.affectedRows === 0) {
-            return res.status(404).json({ error: '用户不存在' });
+            return res.status(404).json({ error: 'User not existed!' });
         }
         else {
-            console.log("NICE!");
-            return res.status(200).json({ message: '用户信息更新成功' });
+            return res.status(200).json({ message: 'Successfully updated user profile!' });
         }
 
     });
 });
 
 
-// 获取用户信息
+/*
+    Fetching the user's profile.
+ */
 router.get('/profile/fetch', (req, res) => {
     const { id } = req.query;
     const sql = 'SELECT id, username, nickname, avatar, role FROM users WHERE id = ?';
@@ -43,7 +46,6 @@ router.get('/profile/fetch', (req, res) => {
         }
     });
 });
-
 
 
 module.exports = router;

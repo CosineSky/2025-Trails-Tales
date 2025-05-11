@@ -3,33 +3,32 @@ const router = express.Router();
 const db = require('../../../db');
 
 
-// Accept a journal
+/*
+    Accepting a journal
+ */
 router.put('/approve/:id', (req, res) => {
-    console.log("acc: ", res.body);
-    console.log("acc: ", req.params, req.body);
     const { id } = req.params;
+
     const sql = 'UPDATE journals SET status = 1 WHERE id = ?';
     db.query(sql, [id], (err, result) => {
         if (err) {
             return res.status(500).json({ error: err.message });
         }
         else {
-            return res.status(200).json({ message: '游记已通过审核' });
+            return res.status(200).json({ message: 'Successfully accepted the journal!' });
         }
     });
 });
 
 
-// Reject a journal
+/*
+    Rejecting a journal
+ */
 router.put('/reject/:id', (req, res) => {
-    console.log("rej: ", res.body);
-    console.log("rej: ", req.params, req.body);
-
     const { id } = req.params;
-    const { rejectionReason } = req.body; // 拒绝理由
-
+    const { rejectionReason } = req.body;
     if (!rejectionReason) {
-        return res.status(400).json({ error: '拒绝理由不能为空' });
+        return res.status(400).json({ error: 'Reject reason cannot be empty!' });
     }
 
     const sql = 'UPDATE journals SET status = 2, detail_status = ? WHERE id = ?';
@@ -38,22 +37,25 @@ router.put('/reject/:id', (req, res) => {
             return res.status(500).json({ error: err.message });
         }
         else {
-            return res.status(200).json({ message: '游记已被拒绝' });
+            return res.status(200).json({ message: 'Successfully rejected the journal!' });
         }
     });
 });
 
 
-// Delete a journal
+/*
+    Deleting a journal
+ */
 router.put('/delete/:id', (req, res) => {
     const { id } = req.params;
+
     const sql = 'UPDATE journals SET status = 3 WHERE id = ?';
     db.query(sql, [id], (err, result) => {
         if (err) {
             return res.status(500).json({ error: err.message });
         }
         else {
-            return res.status(200).json({ message: '游记已删除' });
+            return res.status(200).json({ message: 'Successfully deleted the journal!' });
         }
     });
 });
