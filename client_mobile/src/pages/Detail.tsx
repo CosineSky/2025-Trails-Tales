@@ -45,6 +45,24 @@ type Journal = {
 };
 
 
+// @ts-ignore
+const StyledContent = ({ content }) => {
+    if (!content || content.length === 0) return null;
+
+    const firstChar = content.charAt(0);
+    const restText = content.slice(1);
+
+    return (
+        <View style={styles.container}>
+            <Text style={styles.text}>
+                <Text style={styles.firstChar}>{firstChar}</Text>
+                {restText}
+            </Text>
+        </View>
+    );
+};
+
+
 export default function Detail() {
     const videoRef = useRef<VideoRef>(null);
 
@@ -77,12 +95,20 @@ export default function Detail() {
             const decoded: any = jwtDecode(token); // { userId, username, role }
             setCurrentUserId(decoded.userId);
         }
-        fetchToken().then(async () => {
-            // @ts-ignore
+        fetchToken().then(r => {});
+    }, []);
+
+
+    useEffect(() => {
+        const fetchLikeStatus = async () => {
+            if (!journal || currentUserId === -1) return;
             const likeStatus = await getLikeStatus(journal.id, currentUserId);
             setIsLiked(likeStatus.liked);
-        });
-    }, []);
+            const likeCountResult = await getLikeCount(journal.id);
+            setLikeCount(likeCountResult.count);
+        };
+        fetchLikeStatus().then(r => {});
+    }, [journal, currentUserId]);
 
 
     useEffect(() => {
@@ -210,7 +236,6 @@ export default function Detail() {
     }
 
 
-
     return (
         <ImageBackground source={backgroundImage} style={styles.background} resizeMode="cover">
             <ScrollView onScroll={handleScroll} style={styles.container}>
@@ -250,17 +275,29 @@ export default function Detail() {
 
                 <Text style={styles.title}>{journal.title}</Text>
                 <View style={styles.authorRow}>
-                    <Image source={{ uri: journal.owner_avatar_url }} style={styles.avatar} />
+                    <Image source={{uri: journal.owner_avatar_url}} style={styles.avatar}/>
                     <Text style={styles.nickname}>{journal.owner_nickname}</Text>
+                    <TouchableOpacity onPress={handleFollow} style={styles.icon}>
+                        <Svg width="24" height="24" viewBox="0 0 24 24" fill="#ffffff"
+                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <Path d="M2 21a8 8 0 0 1 13.292-6"/>
+                            <Circle cx="10" cy="8" r="5"/>
+                            <Path d="M19 16v6"/>
+                            <Path d="M22 19h-6"/>
+                        </Svg>
+                    </TouchableOpacity>
                 </View>
-                <View style={styles.separator} />
-                <Text style={styles.content}>{journal.content}</Text>
-                <Text style={styles.datetime}>{'发布时间：' + journal.created_at.substring(0, 10)}</Text>
+                <View style={styles.separator}/>
+                <StyledContent content={journal.content} />
+
+                <Text style={styles.datetime}>
+                    {'发布时间：' + journal.created_at.substring(0, 10)}
+                </Text>
             </ScrollView>
 
             <View style={styles.bottomBar}>
                 <View style={styles.iconWrapper}>
-                    {isLiked ? (
+                {isLiked ? (
                         <TouchableOpacity style={styles.iconContainer} onPress={handleUnlike}>
                             <Svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                                 <Path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
@@ -329,7 +366,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 16,
-        backgroundColor: 'rgba(255, 255, 255, 0.8)'
+        backgroundColor: 'rgba(255, 255, 255, 0.8)',
     },
     backBtn: {
         marginBottom: 12,
@@ -363,15 +400,27 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#555',
     },
-    content: {
+    icon: {
+        padding: 4,
+    },
+    text: {
         fontSize: 16,
-        lineHeight: 22,
+        fontFamily: 'serif',
+        lineHeight: 18,
+        color: '#333',
+    },
+    firstChar: {
+        fontSize: 36,
+        fontWeight: 'bold',
+        color: '#40adba',
+        lineHeight: 32,
     },
     datetime: {
         fontSize: 18,
         lineHeight: 22,
         color: '#4e4e4e',
         marginTop: 12,
+        marginBottom: 100 /* This prevents it from being covered by bottom bar. */
     },
     center: {
         flex: 1,

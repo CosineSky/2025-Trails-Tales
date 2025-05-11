@@ -9,21 +9,35 @@ import {Asset} from "react-native-image-picker";
 import {handleFilePick, uploadSingleFile} from "../../services/selectAndUploadFile.ts";
 import {createJournal} from "../../services/journalService.ts";
 import {useSelector} from "react-redux";
+import {RouteProp, useRoute} from "@react-navigation/native";
+import axios from "axios";
 
 
 const backgroundImage = require('../../assets/images/bg/home.jpg');
 
+const HOST_IP = "115.175.40.241";
+const HOST_PORT = "5000";
+const API_URL = `http://${HOST_IP}:${HOST_PORT}/api`;
+
 
 type Journal = {
+    id?: number;
     title: string;
     content: string;
     cover_url: string;
     video_url: string;
     pictures: Array<string>;
 }
+type RouteParams = {
+    journal?: Journal;  // 现有的游记数据
+    isEdit: boolean;    // 是否为编辑模式
+};
 
 
 export default function Post({navigation}: any) {
+    const route = useRoute<RouteProp<{ params: RouteParams }, 'params'>>();
+    const { journal, isEdit } = route.params || {};
+
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [pictures, setPictures] = useState<Asset[]>([]);
@@ -37,6 +51,27 @@ export default function Post({navigation}: any) {
             ]);
         }
     }, [user, navigation]);
+
+
+    useEffect(() => {
+        if (isEdit && journal) {
+            setTitle(journal.title);
+            setContent(journal.content);
+            // 注意：这里假设 journal.pictures 是 string[]（已上传的 URL），需转换为 Asset 格式或兼容显示
+            const pictureAssets = journal.pictures.map((url) => ({
+                uri: url,
+            } as Asset));
+            setPictures(pictureAssets);
+
+            if (journal.video_url) {
+                setVideo({
+                    uri: journal.video_url,
+                    fileName: '已上传视频',
+                } as Asset);
+            }
+        }
+    }, [isEdit, journal]);
+
 
     const handleSelectImages = async () => {
         const selectedImages = await handleFilePick('photo', 10);
@@ -66,6 +101,22 @@ export default function Post({navigation}: any) {
             return;
         }
 
+        // const pic_urls = await Promise.all(pictures.map((pic: Asset) => uploadSingleFile(pic)));
+        // const video_url = video ? await uploadSingleFile(video) : '';
+        //
+        // const new_journal: Journal = {
+        //     title,
+        //     content,
+        //     cover_url: pic_urls[0] || '',
+        //     video_url: video_url || '',
+        //     pictures: pic_urls,
+        // };
+        //
+        // console.log('Before creating journal:', new_journal);
+        // await createJournal(new_journal);
+        // console.log('Created journal.');
+
+
         const pic_urls = await Promise.all(pictures.map((pic: Asset) => uploadSingleFile(pic)));
         const video_url = video ? await uploadSingleFile(video) : '';
 
@@ -77,9 +128,33 @@ export default function Post({navigation}: any) {
             pictures: pic_urls,
         };
 
-        console.log('Before creating journal:', new_journal);
+        // 创建新的游记
         await createJournal(new_journal);
-        console.log('Created journal.');
+
+        // 编辑模式下，删除原游记
+        if (isEdit && journal) {
+            axios.put(`${API_URL}/journals/delete/${journal.id}`)
+                .then((response) => {
+                    console.log('已删除编辑前的游记！');
+                })
+                .catch((err) => {
+                    console.log('删除失败: ' + err);
+                });
+        }
+
+        Alert.alert(
+            '发布成功',
+            '您的游记已成功发布！',
+            [{
+                text: '确定',
+                onPress: () => {
+                    navigation.navigate('Main',
+                        { screen: 'My Tales' },
+                        { refresh: true });
+                }
+            }]
+        );
+
     }
 
     return (

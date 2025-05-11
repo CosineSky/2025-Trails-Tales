@@ -63,9 +63,9 @@ const MyJournalsScreen: React.FC = ({ navigation }: any) => {
     };
 
 
-    const onEdit = (id: any) => {
-
-    }
+    const onEdit = (id: string, journal: Journal) => {
+        navigation.navigate('Post', { journal, isEdit: true });
+    };
 
 
     const onDelete = (id: any) => {
@@ -111,7 +111,7 @@ const MyJournalsScreen: React.FC = ({ navigation }: any) => {
                                 </View>
                                 <View style={styles.actionButtons}>
                                     {(item.status === 0 || item.status === 2) && (
-                                        <TouchableOpacity onPress={() => onEdit(item.id)} style={styles.editBtn}>
+                                        <TouchableOpacity onPress={() => onEdit(item.id, item)} style={styles.editBtn}>
                                             <Text style={styles.btnText}>编辑</Text>
                                         </TouchableOpacity>
                                     )}

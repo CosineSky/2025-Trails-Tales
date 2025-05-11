@@ -105,7 +105,7 @@ const Home: React.FC = ({ navigation }: any) => {
         >
             <View style={styles.footerContainer}>
                 <Text style={styles.title}>{item.title}</Text>
-                <Text style={styles.content} numberOfLines={6}>{item.content}</Text>
+                <Text style={styles.content} numberOfLines={4}>{item.content}</Text>
                 <View style={styles.userRow}>
                     <Image source={{ uri: item.owner_avatar_url }} style={styles.avatar} />
                     <Text style={styles.nickname}>{item.owner_nickname.substring(0, 10)}</Text>
