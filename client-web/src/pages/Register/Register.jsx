@@ -1,11 +1,16 @@
-// src/pages/Register.jsx
-import './Register.css';
+import '../../LoginRegister.css';
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
 import {message} from "antd";
 
+
+/*
+    Server IP
+ */
+// TODO - dev/prod env switching.
 const HOST_IP = '115.175.40.241';
+
 
 export default function Register() {
     const navigate = useNavigate();
@@ -14,17 +19,18 @@ export default function Register() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [role, setRole] = useState(1); // 默认角色是“审核人员”
 
+
     const handleRegister = async (e) => {
         e.preventDefault();
         if (password !== confirmPassword) {
-            alert('Passwords don\'t match!');
+            message.error('密码和确认密码不匹配！');
             return;
         }
 
         const res = await fetch(`http://${HOST_IP}:5000/api/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password, role }), // 添加角色信息到请求体
+            body: JSON.stringify({ username, password, role }),
         });
 
         if (res.status === 200) {
@@ -33,9 +39,10 @@ export default function Register() {
         }
     };
 
+
     return (
-        <div className="register-bg-wrapper">
-            <div className="register-wrapper">
+        <div className="login-bg-wrapper">
+            <div className="login-wrapper">
                 <form className="login">
                     <p className="title">Register</p>
 
@@ -96,5 +103,6 @@ export default function Register() {
                 </form>
             </div>
         </div>
+
     );
 }

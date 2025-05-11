@@ -1,16 +1,22 @@
-// src/pages/Login.jsx
-import './Login.css';
+import '../../LoginRegister.css';
 import {jwtDecode} from 'jwt-decode';
 import {useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import {message} from "antd";
 
+
+/*
+    Server IP
+ */
+// TODO - dev/prod env switching.
 const HOST_IP = '115.175.40.241';
+
 
 export default function Login() {
     const navigate = useNavigate();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -29,8 +35,8 @@ export default function Login() {
                 const decodedToken = jwtDecode(token);
                 localStorage.setItem('username', decodedToken.username);
                 localStorage.setItem('role', decodedToken.role);
-            } catch (error) {
-                console.error('Failed to decode token:', error);
+            } catch (err) {
+                console.error('Failed to decode token:', err);
                 return null;
             }
             message.success('登录成功！');
@@ -39,12 +45,12 @@ export default function Login() {
 
     };
 
+
     return (
         <div className="login-bg-wrapper">
             <div className="login-wrapper">
                 <form className="login">
                     <p className="title">Log in</p>
-
                     <input type="text" placeholder="Username" onChange={e => setUsername(e.target.value)}/>
                     <span className="icon-wrapper">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -72,4 +78,5 @@ export default function Login() {
             </div>
         </div>
     );
+
 }
