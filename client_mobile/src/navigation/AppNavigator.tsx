@@ -7,6 +7,7 @@ import Register from '../pages/Register';
 import MainTabNavigator from "./MainTabNavigator.tsx";
 import Detail from "../pages/Detail.tsx";
 import Post from "../pages/main/Post.tsx";
+import Edit from "../pages/Edit.tsx";
 
 const Stack = createStackNavigator();
 
@@ -18,6 +19,7 @@ const AppNavigator: React.FC = () => (
             <Stack.Screen name="Main" component={MainTabNavigator} options={{ title: '足迹与故事' }} />
             <Stack.Screen name="Detail" component={Detail} options={{ title: '足迹详情' }} />
             <Stack.Screen name="Post" component={Post} options={{ title: '新的故事' }} />
+            <Stack.Screen name="Edit" component={Edit} options={{ title: '编辑个人资料' }} />
         </Stack.Navigator>
     </NavigationContainer>
 );

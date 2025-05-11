@@ -12,7 +12,6 @@ import {
 import MasonryList from 'react-native-masonry-list';
 import Svg, { Circle, Path } from "react-native-svg";
 
-const logoImage = require('../../assets/images/logo.png');
 const backgroundImage = require('../../assets/images/bg/home.jpg');
 
 const HOST_IP = "115.175.40.241";
@@ -64,10 +63,16 @@ const Home: React.FC = ({ navigation }: any) => {
         }
     }, [page, loading]);
 
+
+    useEffect(() => {
+        fetchJournals(true, search).then(r => {});
+    }, []);
+
+
     useEffect(() => {
         if (page === 1) {
             return;
-        } // 避免初始页面调用重复执行
+        }
         console.log(`Calling fetchJournals() from useEffect watching page, page = ${page}`);
         fetchJournals(false, search).then(r => {});
     }, [page]);

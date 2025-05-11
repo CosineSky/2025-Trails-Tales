@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, Button, Image, StyleSheet, Text, TextInput, View } from 'react-native';
+import {Alert, Button, Image, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import { handleFilePick, uploadSingleFile } from '../../services/selectAndUploadFile.ts';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from 'jwt-decode';
@@ -7,6 +7,7 @@ import { fetchProfile, updateProfile } from '../../services/profileService.ts';
 import {Asset} from "react-native-image-picker";
 import {NavigationActions} from "react-navigation";
 import navigate = NavigationActions.navigate;
+import Svg, {Circle, Path} from "react-native-svg";
 
 const defaultAvatar = 'http://bucket-cloudsky.oss-cn-nanjing.aliyuncs.com/1746532505514.jpg';
 const profileImage = require('../../assets/images/profile.jpg');
@@ -19,12 +20,21 @@ interface DecodedToken {
     exp: number;
 }
 
-const UserInfo: React.FC = ({ navigation }: any) => {
+const UserInfo: React.FC = ({ navigation, route }: any) => {
     const decodedUserToken = useRef<DecodedToken | null>(null);
     const [avatar, setAvatar] = useState<string>(defaultAvatar); // 用户头像URL
     const [nickname, setNickname] = useState<string>('Offline'); // 用户昵称
-    const [isEditing, setIsEditing] = useState<boolean>(false); // 是否正在编辑
     const [newAvatar, setNewAvatar] = useState<string>(''); // 存储选择的新头像
+
+
+    useEffect(() => {
+        if (route.params) {
+            console.log(route.params.updatedNickname);
+            setNickname(route.params.updatedNickname);
+            setAvatar(route.params.updatedAvatar);
+        }
+    }, [route.params]);
+
 
     useEffect(() => {
         const loadUser = async () => {
@@ -42,28 +52,6 @@ const UserInfo: React.FC = ({ navigation }: any) => {
         loadUser();
     }, []);
 
-    // 处理昵称和头像的更新
-    const handleSaveChanges = async () => {
-        if (!decodedUserToken.current) {
-            console.warn('用户信息未加载');
-            return;
-        }
-
-        const updatedAvatar = newAvatar || avatar;
-        console.log('1 =>', decodedUserToken.current.userId, nickname, updatedAvatar);
-        await updateProfile(decodedUserToken.current.userId, nickname, updatedAvatar);
-        console.log('2 =>', decodedUserToken.current.userId, nickname, updatedAvatar);
-        Alert.alert('信息已保存', `头像: ${updatedAvatar}\n昵称: ${nickname}`);
-        handleEditToggle();
-    };
-
-    const handleEditToggle = () => {
-        setIsEditing(!isEditing);
-    };
-
-    const handleAvatarChange = (uri: string) => {
-        setNewAvatar(uri);
-    };
 
     return (
         <View style={styles.container}>
@@ -89,42 +77,55 @@ const UserInfo: React.FC = ({ navigation }: any) => {
             {/* 下半部分白色背景 */}
             <View style={styles.bottomSection}>
 
-                {/* 用户昵称显示或编辑 */}
-                {isEditing ? (
-                    <TextInput
-                        style={styles.input}
-                        value={nickname}
-                        onChangeText={setNickname}
-                        placeholder="修改昵称"
-                        editable={isEditing} // 仅在编辑模式下允许编辑
-                    />
-                ) : (
-                    <Text style={styles.nickname}>{nickname}</Text> // 显示文本
-                )}
+                <Text style={styles.nickname}>{nickname}</Text>
+                <Text style={styles.info}>Love. Understanding. Positivity.</Text>
 
-                {isEditing && (
-                    <Button
-                        title="上传头像"
-                        onPress={async () => {
-                            const pic = await handleFilePick('photo');
-                            const uri = await uploadSingleFile(pic?.[0] as Asset);
-                            if (uri) {
-                                handleAvatarChange(uri); // 更新头像状态
-                            }
-                        }}
-                    />
-                )}
 
-                {isEditing ? (
-                    <Button title="保存信息" onPress={handleSaveChanges} />
-                ) : (
-                    <Button title="编辑个人信息" onPress={handleEditToggle} />
-                )}
+                <View style={styles.statsCard}>
+                    <View style={styles.statsItem}>
+                        <Text style={styles.statsNumber}>114</Text>
+                        <Text style={styles.statsLabel}>粉丝</Text>
+                    </View>
+                    <View style={styles.divider} />
+                    <View style={styles.statsItem}>
+                        <Text style={styles.statsNumber}>514</Text>
+                        <Text style={styles.statsLabel}>获赞</Text>
+                    </View>
+                </View>
 
-                <Text style={styles.info}>其他用户信息...</Text>
-                <Button title="To Login" onPress={() => {
-                    navigation.navigate('Login');
-                }}/>
+
+                <View style={styles.iconRow}>
+                    {/* 编辑个人信息按钮 */}
+                    <TouchableOpacity
+                        onPress={() => navigation.navigate('Edit')}
+                        style={styles.iconButton}
+                    >
+                        <Svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="black"
+                             strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <Path d="M11.5 15H7a4 4 0 0 0-4 4v2" />
+                            <Path
+                                d="M21.378 16.626a1 1 0 0 0-3.004-3.004l-4.01 4.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z" />
+                            <Circle cx="10" cy="7" r="4" />
+                        </Svg>
+                        <Text style={styles.iconLabel}>编辑</Text>
+                    </TouchableOpacity>
+
+                    {/* To Login 按钮 */}
+                    <TouchableOpacity
+                        onPress={() => navigation.navigate('Login')}
+                        style={styles.iconButton}
+                    >
+                        <Svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="black"
+                             strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <Path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                            <Path d="M10 17l5-5-5-5" />
+                            <Path d="M15 12H3" />
+                        </Svg>
+                        <Text style={styles.iconLabel}>退出</Text>
+                    </TouchableOpacity>
+                </View>
+
+
             </View>
         </View>
     );
@@ -155,7 +156,6 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         backgroundColor: '#fff',
-        padding: 20,
     },
     input: {
         width: '80%',
@@ -177,19 +177,72 @@ const styles = StyleSheet.create({
     },
     avatarContainer: {
         position: 'absolute',
-        top: '50%',  // 使头像垂直居中
+        top: '47%',
         left: '50%',
-        transform: [{ translateX: -50 }, { translateY: -50 }],  // 将头像中心定位到分割线中央
-        zIndex: 1,  // 确保头像在分割线之上
+        transform: [{ translateX: -50 }, { translateY: -50 }],
+        zIndex: 1,
     },
     avatar: {
         width: 100,
         height: 100,
         borderRadius: 50,
+        borderWidth: 1,
+        borderColor: '#000000',
     },
     block: {
         marginTop: 100,
     },
+    statsCard: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#f5f5f5',
+        borderRadius: 12,
+        paddingVertical: 16,
+        paddingHorizontal: 24,
+        marginVertical: 20,
+        width: '80%',
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+    },
+    statsItem: {
+        flex: 1,
+        alignItems: 'center',
+    },
+    divider: {
+        width: 1,
+        height: '100%',
+        backgroundColor: '#ccc',
+    },
+    statsNumber: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#333',
+    },
+    statsLabel: {
+        fontSize: 14,
+        color: '#888',
+        marginTop: 4,
+    },
+    iconRow: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        gap: 40,
+        marginTop: 0,
+    },
+    iconButton: {
+        alignItems: 'center',
+    },
+
+    iconLabel: {
+        fontSize: 12,
+        color: '#333',
+        marginTop: 4,
+    },
+
 });
 
 export default UserInfo;

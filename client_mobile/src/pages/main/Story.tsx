@@ -93,7 +93,7 @@ const MyJournalsScreen: React.FC = ({ navigation }: any) => {
                 style={styles.publishButton}
                 onPress={() => navigation.navigate('Post')}
             >
-                <Text style={styles.publishText}>➕ 发布新游记</Text>
+                <Text style={styles.publishText}>➕ 新的故事</Text>
             </TouchableOpacity>
             <FlatList
                 data={journals}
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#f0f0f0'
     },
     publishButton: {
-        backgroundColor: '#4caf50',
+        backgroundColor: '#40adba',
         padding: 10,
         borderRadius: 8,
         alignItems: 'center',
