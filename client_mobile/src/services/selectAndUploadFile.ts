@@ -6,6 +6,7 @@ const HOST_IP = "115.175.40.241"; // This gives 127.0.0.1 in host device.
 const HOST_PORT = "5000";
 const API_URL = `http://${HOST_IP}:${HOST_PORT}/api`;
 
+
 //需要指定文件类型、最多可以选择的文件个数
 export const handleFilePick = (mediaType : MediaType , maxCount : number = 1): Promise<Asset[] | null> => {
     return new Promise((resolve, reject) => {
@@ -31,6 +32,7 @@ export const handleFilePick = (mediaType : MediaType , maxCount : number = 1): P
         });
     });
 };
+
 
 export const uploadSingleFile = async (asset: Asset): Promise<string> => {
     const uri = asset.uri;

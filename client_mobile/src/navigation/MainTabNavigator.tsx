@@ -11,13 +11,15 @@ import ProfileIcon from "../assets/icons/ProfileIcon";
 
 const Tab = createBottomTabNavigator();
 
+/*
+    Sub navigator for Stack.Screen -> 'Main'.
+ */
 export default function MainTabNavigator() {
     return (
         <Tab.Navigator
             screenOptions={({ route }) => ({
                 headerShown: false,
                 tabBarIcon: ({ color, size }) => {
-                    //指定选项卡图标
                     switch (route.name) {
                         case 'Trails':
                             return <HomeIcon width={size} height={size} fill={color} />;
@@ -34,8 +36,6 @@ export default function MainTabNavigator() {
             <Tab.Screen name="Trails" component={Home} />
             <Tab.Screen name="My Tales" component={Story} />
             <Tab.Screen name="Me" component={Profile} />
-
         </Tab.Navigator>
-
     );
 }

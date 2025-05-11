@@ -1,6 +1,6 @@
-// src/components/Button.tsx
 import React from 'react';
 import {TouchableOpacity, Text, StyleSheet, ViewStyle} from 'react-native';
+
 
 interface ButtonProps {
     title: string,
@@ -8,6 +8,7 @@ interface ButtonProps {
     backgroundColor?: string,
     style?: ViewStyle
 }
+
 
 const Button: React.FC<ButtonProps> = ({title, onPress, backgroundColor = '#40adba', style}) => (
     <TouchableOpacity style={[styles.button, {backgroundColor}]} onPress={onPress}>
@@ -29,5 +30,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
 });
+
 
 export default Button;

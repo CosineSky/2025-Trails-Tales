@@ -16,10 +16,8 @@ type Journal = {
 
 export const createJournal  = async (journal: Journal) => {
     try {
-        console.log(`In creatingJournal():`);
-        console.log(`${API_URL}/journals/upload`);
-        console.log(journal);
-        const response = await axios.post(`${API_URL}/journals/upload`, journal);
+        const response = await axios.post(
+            `${API_URL}/journals/upload`, journal);
         return response.data;
     } catch (error) {
         throw error;

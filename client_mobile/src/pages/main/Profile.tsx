@@ -10,7 +10,7 @@ import navigate = NavigationActions.navigate;
 import Svg, {Circle, Path} from "react-native-svg";
 
 const defaultAvatar = 'http://bucket-cloudsky.oss-cn-nanjing.aliyuncs.com/1746532505514.jpg';
-const profileImage = require('../../assets/images/profile.jpg');
+const profileImage = require('../../assets/images/bg/profile.jpg');
 
 interface DecodedToken {
     userId: number;

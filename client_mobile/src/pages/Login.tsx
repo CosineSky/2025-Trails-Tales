@@ -1,6 +1,6 @@
 // src/screens/LoginScreen.tsx
 import React, { useState } from 'react';
-import {View, Text, StyleSheet, Alert, ImageBackground, Image} from 'react-native';
+import {View, StyleSheet, Alert, ImageBackground, Image} from 'react-native';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import { loginUser } from '../services/authService';
@@ -25,29 +25,52 @@ const Login: React.FC = ({ navigation }: any) => {
             const token = response.token;
             const decoded: any = jwtDecode(token); // { userId, username, role }
 
-            // 保存 token 到本地和 Redux
+            // saving token to async storage.
             await AsyncStorage.setItem('token', token);
             dispatch(login({ ...decoded, token }));
             navigation.replace('Main');
         } catch (error) {
             console.log(error);
-            Alert.alert('Login Failed', 'Invalid credentials or server error.');
+            Alert.alert('登录失败', '错误的用户名或密码！');
         }
     };
 
     return (
-        <ImageBackground source={backgroundImage} style={styles.background} resizeMode="cover">
+        <ImageBackground
+            source={backgroundImage}
+            style={styles.background}
+            resizeMode="cover"
+        >
             <View style={styles.overlay}>
-                <Image source={logoImage} alt="Logo" style={styles.logo} />
-                {/*<Text style={styles.title}>Login</Text>*/}
-                <Input value={email} onChangeText={setEmail} placeholder="Email" />
-                <Input value={password} onChangeText={setPassword} placeholder="Password" secureTextEntry />
+                <Image
+                    source={logoImage}
+                    alt="Logo"
+                    style={styles.logo}
+                />
+                <Input
+                    value={email}
+                    onChangeText={setEmail}
+                    placeholder="Email"
+                />
+                <Input
+                    value={password}
+                    onChangeText={setPassword}
+                    placeholder="Password"
+                    secureTextEntry
+                />
                 <View style={styles.buttonRow}>
                     <View style={styles.buttonWrapper}>
-                        <Button title="Login" onPress={handleLogin} />
+                        <Button
+                            title="Login"
+                            onPress={handleLogin}
+                        />
                     </View>
                     <View style={styles.buttonWrapper}>
-                        <Button title="Register" onPress={() => navigation.navigate('Register')} backgroundColor="#6c757d" />
+                        <Button
+                            title="Register"
+                            onPress={() => navigation.navigate('Register')}
+                            backgroundColor="#6c757d"
+                        />
                     </View>
                 </View>
 
@@ -55,6 +78,7 @@ const Login: React.FC = ({ navigation }: any) => {
         </ImageBackground>
     );
 };
+
 
 const styles = StyleSheet.create({
     background: {
@@ -88,7 +112,7 @@ const styles = StyleSheet.create({
     buttonRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        gap: 10, // RN >= 0.71
+        gap: 10,
         marginTop: 10,
     },
     buttonWrapper: {
@@ -96,5 +120,6 @@ const styles = StyleSheet.create({
     },
 
 });
+
 
 export default Login;

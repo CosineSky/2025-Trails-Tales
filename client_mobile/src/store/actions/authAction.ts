@@ -1,4 +1,3 @@
-// src/store/actions/authActions.ts
 export const login = (user: any) => ({
     type: 'LOGIN',
     payload: user,

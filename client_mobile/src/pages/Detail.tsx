@@ -1,37 +1,37 @@
+// react-native
 import React, {useEffect, useRef, useState} from 'react';
 import {
     View,
     Text,
     Image,
+    TextInput,
     ScrollView,
     StyleSheet,
+    ImageBackground,
     ActivityIndicator,
     TouchableOpacity,
     AppState,
     Dimensions,
     Share,
-    TextInput, ImageBackground
 } from 'react-native';
 import {Video, VideoRef} from 'react-native-video';
+import Svg, {Circle, Line, Path} from "react-native-svg";
 import Orientation from 'react-native-orientation-locker';
 import NetInfo from '@react-native-community/netinfo';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+// react-navigation
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation.ts';
-import Svg, {Circle, Line, Path} from "react-native-svg";
+
+// external modules.
 import {getLikeCount, getLikeStatus, likeJournal, unlikeJournal} from "../services/interactService.ts";
 import {jwtDecode} from "jwt-decode";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+
 
 type JournalDetailRouteProp = RouteProp<RootStackParamList, 'JournalDetail'>;
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'JournalDetail'>;
-const backgroundImage = require('../assets/images/bg/home.jpg');
-
-const HOST_IP = "115.175.40.241"; // This gives 127.0.0.1 in host device.
-const HOST_PORT = "5000";
-const API_URL = `http://${HOST_IP}:${HOST_PORT}/api`;
-
-
 type Journal = {
     id: number;
     title: string;
@@ -45,13 +45,23 @@ type Journal = {
 };
 
 
+const backgroundImage = require('../assets/images/bg/home.jpg');
+
+const HOST_IP = "115.175.40.241"; // This gives 127.0.0.1 in host device.
+const HOST_PORT = "5000";
+const API_URL = `http://${HOST_IP}:${HOST_PORT}/api`;
+
+
+/*
+    Adds fancier styles to journal's main content.
+ */
 // @ts-ignore
 const StyledContent = ({ content }) => {
-    if (!content || content.length === 0) return null;
-
+    if (!content || content.length === 0) {
+        return null;
+    }
     const firstChar = content.charAt(0);
     const restText = content.slice(1);
-
     return (
         <View style={styles.container}>
             <Text style={styles.text}>
@@ -64,31 +74,48 @@ const StyledContent = ({ content }) => {
 
 
 export default function Detail() {
+    /*
+        ============================ Refs ============================
+     */
+    /*
+        Video related.
+     */
     const videoRef = useRef<VideoRef>(null);
-
-    const [journal, setJournal] = useState<Journal | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [isFullscreen, setIsFullscreen] = useState(false);
-    const [videoProgress, setVideoProgress] = useState(0);
-    const [appState, setAppState] = useState(AppState.currentState);
     const [showMiniPlayer, setShowMiniPlayer] = useState(false);
-    const [comment, setComment] = useState(""); // 评论输入框的内容
+    const [isFullscreen, setIsFullscreen] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [videoProgress, setVideoProgress] = useState(0);
+
+    /*
+        Journal related.
+     */
+    const [journal, setJournal] = useState<Journal | null>(null);
     const [isLiked, setIsLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(0);
+    const [comment, setComment] = useState("");
 
+    /*
+        Page loading related.
+     */
     const route = useRoute<JournalDetailRouteProp>();
     const navigation = useNavigation<NavigationProp>();
-    const [currentUserId, setCurrentUserId] = useState(-1);
+    const [loading, setLoading] = useState(true);
     const { id } = route.params;
 
+    /*
+        Utils
+     */
+    const [appState, setAppState] = useState(AppState.currentState);
+    const [currentUserId, setCurrentUserId] = useState(-1);
 
-    const handleScroll = (event: any) => {
-        const scrollY = event.nativeEvent.contentOffset.y;
-        setShowMiniPlayer(scrollY > 200); // 简单判断，实际需更精确
-    };
 
 
+    /*
+        ============================ Reactive ============================
+     */
+    /*
+        Jwt auth on page loading.
+     */
     useEffect(() => {
         const fetchToken = async () => {
             const token = await AsyncStorage.getItem('token') as string;
@@ -99,9 +126,40 @@ export default function Detail() {
     }, []);
 
 
+    /*
+        Getting device info, mostly used for video playing.
+     */
+    useEffect(() => {
+        const netUnsubscribe = NetInfo.addEventListener(state => {
+            if (state.type === 'wifi') {
+                setIsPlaying(true);
+            } else {
+                setIsPlaying(false);
+            }
+        });
+        const appStateListener = AppState.addEventListener('change', nextAppState => {
+            if (nextAppState === 'active') {
+                setIsPlaying(true);
+            } else {
+                setIsPlaying(false);
+            }
+            setAppState(nextAppState);
+        });
+        return () => {
+            netUnsubscribe();
+            appStateListener.remove();
+        };
+    }, []);
+
+
+    /*
+        loading like status of the journal.
+     */
     useEffect(() => {
         const fetchLikeStatus = async () => {
-            if (!journal || currentUserId === -1) return;
+            if (!journal || currentUserId === -1) {
+                return;
+            }
             const likeStatus = await getLikeStatus(journal.id, currentUserId);
             setIsLiked(likeStatus.liked);
             const likeCountResult = await getLikeCount(journal.id);
@@ -111,6 +169,9 @@ export default function Detail() {
     }, [journal, currentUserId]);
 
 
+    /*
+        fetching detailed information of the journal.
+     */
     useEffect(() => {
         const fetchJournal = async () => {
             try {
@@ -144,37 +205,29 @@ export default function Detail() {
     }, [id]);
 
 
-    useEffect(() => {
-        const netUnsubscribe = NetInfo.addEventListener(state => {
-            if (state.type === 'wifi') {
-                setIsPlaying(true);
-            } else {
-                setIsPlaying(false);
-            }
-        });
 
-        const appStateListener = AppState.addEventListener('change', nextAppState => {
-            if (nextAppState === 'active') {
-                setIsPlaying(true);
-            } else {
-                setIsPlaying(false);
-            }
-            setAppState(nextAppState);
-        });
-
-        return () => {
-            netUnsubscribe();
-            appStateListener.remove();
-        };
-    }, []);
+    /*
+        ============================ Methods ============================
+     */
+    /*
+        scroll event, currently used for video mini-player detection.
+     */
+    const handleScroll = (event: any) => {
+        const scrollY = event.nativeEvent.contentOffset.y;
+        setShowMiniPlayer(scrollY > 200);
+    };
 
 
+    /*
+        sharing the journal.
+     */
     const handleShare = async () => {
-        if (!journal) return;
-
+        if (!journal) {
+            return;
+        }
         try {
             const result = await Share.share({
-                message: `我发现了一篇很棒的游记《${journal.title}》，快来看看吧：https://your-website.com/journal/${journal.id}`,
+                message: `我发现了一篇很棒的游记《${journal.title}》，快来看看吧：https://currently-under-construction.com/journal/${journal.id}`,
             });
             if (result.action === Share.sharedAction) {
                 console.log('分享成功');
@@ -185,48 +238,52 @@ export default function Detail() {
     };
 
 
+    /*
+        giving or removing a like to the journal
+     */
     const handleLike = async () => {
         try {
             // @ts-ignore
             const journalId = journal.id;
-            await likeJournal(journalId, currentUserId); // journal_id, user_id
+            await likeJournal(journalId, currentUserId);
             const likeCountResult = await getLikeCount(journalId);
             setLikeCount(likeCountResult.count);
             setIsLiked(true);
         } catch (err) {
-            console.error('点赞失败', err);
+            console.error('Failed to perform \'like\'. ', err);
         }
     }
-
-
     const handleUnlike = async () => {
         try {
             // @ts-ignore
             const journalId = journal.id;
-            await unlikeJournal(journalId, currentUserId); // journal_id, user_id
+            await unlikeJournal(journalId, currentUserId);
             const likeCountResult = await getLikeCount(journalId);
             setLikeCount(likeCountResult.count);
             setIsLiked(false);
         } catch (err) {
-            console.error('点赞失败', err);
+            console.error('Failed to perform \'dislike\'. ', err);
         }
     }
 
-
+    /*
+        following the author & commiting a comment.
+     */
     const handleFollow = async () => {
-
+        // TODO - Follow a user.
     }
-
-
     const handleCommentSubmit = () => {
+        // TODO - Post a comment under a journal.
         if (comment.trim()) {
-            // 提交评论的逻辑（如：调用 API 或更新本地状态）
             console.log('评论提交：', comment);
-            setComment(""); // 清空输入框
+            setComment("");
         }
     };
 
 
+    /*
+        Placeholder when the journal is still loading.
+     */
     if (loading || !journal) {
         return (
             <View style={styles.center}>
@@ -237,15 +294,28 @@ export default function Detail() {
 
 
     return (
-        <ImageBackground source={backgroundImage} style={styles.background} resizeMode="cover">
-            <ScrollView onScroll={handleScroll} style={styles.container}>
-                <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={true} style={styles.mediaScroll}>
+        <ImageBackground
+            source={backgroundImage}
+            style={styles.background}
+            resizeMode="cover"
+        >
+            <ScrollView
+                onScroll={handleScroll}
+                style={styles.container}
+            >
+                <ScrollView
+                    horizontal
+                    pagingEnabled
+                    showsHorizontalScrollIndicator={true}
+                    style={styles.mediaScroll}
+                >
+                    {/* 1. video, if existed. */}
                     {journal.video_url ? (
                         <TouchableOpacity
                             activeOpacity={1}
                             onPress={() => {
                                 setIsFullscreen(true);
-                                videoRef.current?.presentFullscreenPlayer(); // 进入视频全屏模式
+                                videoRef.current?.presentFullscreenPlayer(); // Fullscreen vid.
                             }}
                         >
                             <Video
@@ -266,17 +336,29 @@ export default function Detail() {
                                 controls
                             />
                         </TouchableOpacity>
-
                     ) : null}
+
+                    {/* 2. other pictures. */}
                     {journal.pictures.map((url, idx) => (
                         <Image key={idx} source={{ uri: url }} style={styles.mediaItem} />
                     ))}
                 </ScrollView>
 
-                <Text style={styles.title}>{journal.title}</Text>
+
+                {/* journal's title */}
+                <Text style={styles.title}>
+                    {journal.title}
+                </Text>
+
+                {/* author's info, and follow btn. */}
                 <View style={styles.authorRow}>
-                    <Image source={{uri: journal.owner_avatar_url}} style={styles.avatar}/>
-                    <Text style={styles.nickname}>{journal.owner_nickname}</Text>
+                    <Image
+                        source={{uri: journal.owner_avatar_url}}
+                        style={styles.avatar}
+                    />
+                    <Text style={styles.nickname}>
+                        {journal.owner_nickname}
+                    </Text>
                     <TouchableOpacity onPress={handleFollow} style={styles.icon}>
                         <Svg width="24" height="24" viewBox="0 0 24 24" fill="#ffffff"
                              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -287,15 +369,24 @@ export default function Detail() {
                         </Svg>
                     </TouchableOpacity>
                 </View>
+
+                {/* separator */}
                 <View style={styles.separator}/>
+
+                {/* main content. */}
                 <StyledContent content={journal.content} />
 
+                {/* other info. */}
                 <Text style={styles.datetime}>
                     {'发布时间：' + journal.created_at.substring(0, 10)}
                 </Text>
+
             </ScrollView>
 
+            {/* bottom bar, including likes, comments etc; fixed. */}
             <View style={styles.bottomBar}>
+
+                {/* like, switching btn's color depends on liked or not. */}
                 <View style={styles.iconWrapper}>
                 {isLiked ? (
                         <TouchableOpacity style={styles.iconContainer} onPress={handleUnlike}>
@@ -318,6 +409,8 @@ export default function Detail() {
                     )}
                     <Text style={styles.likeCountText}>{likeCount}</Text>
                 </View>
+
+                {/* share btn. */}
                 <TouchableOpacity style={styles.iconContainer} onPress={handleShare}>
                     <Svg width="24" height="24" viewBox="0 0 24 24" fill="#40adba"
                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -328,19 +421,23 @@ export default function Detail() {
                         <Line x1="15.41" x2="8.59" y1="6.51" y2="10.49" stroke="#40adba"/>
                     </Svg>
                 </TouchableOpacity>
+
+                {/* comment. */}
                 <View style={styles.commentInputContainer}>
                     <TextInput
                         style={styles.commentInput}
                         value={comment}
                         onChangeText={setComment}
-                        placeholder="写评论..."
+                        placeholder="留下你的评论..."
                     />
                     <TouchableOpacity style={styles.sendButton} onPress={handleCommentSubmit}>
                         <Text style={styles.sendButtonText}>发送</Text>
                     </TouchableOpacity>
                 </View>
+
             </View>
 
+            {/* Mini-player for vid. */}
             {showMiniPlayer && journal.video_url && (
                 <View style={styles.miniPlayer}>
                     <Video
@@ -355,8 +452,8 @@ export default function Detail() {
         </ImageBackground>
     );
 
-
 }
+
 
 const styles = StyleSheet.create({
     background: {

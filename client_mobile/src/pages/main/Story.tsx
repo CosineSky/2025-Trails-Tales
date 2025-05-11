@@ -1,10 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import {
-    View, Text, StyleSheet, TouchableOpacity, FlatList, Alert, Image
+    View,
+    Text,
+    Image,
+    FlatList,
+    StyleSheet,
+    TouchableOpacity,
+    Alert,
 } from 'react-native';
+import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {jwtDecode} from "jwt-decode";
-import axios from "axios";
+
 
 const API_URL = "http://115.175.40.241:5000/api";
 
@@ -24,6 +31,9 @@ const MyJournalsScreen: React.FC = ({ navigation }: any) => {
     let currentUserId: number;
 
 
+    /*
+        on mounted.
+     */
     useEffect(() => {
         const fetchToken = async () => {
             const token = await AsyncStorage.getItem('token') as string;
@@ -48,6 +58,9 @@ const MyJournalsScreen: React.FC = ({ navigation }: any) => {
     }, []);
 
 
+    /*
+        displaying tag depends on journal status.
+     */
     const renderStatus = (status: number, reason?: string) => {
         switch (status) {
             case 0: return <Text style={styles.pending}>待审核</Text>;
@@ -63,7 +76,7 @@ const MyJournalsScreen: React.FC = ({ navigation }: any) => {
     };
 
 
-    const onEdit = (id: string, journal: Journal) => {
+    const onEdit = (journal: Journal) => {
         navigation.navigate('Post', { journal, isEdit: true });
     };
 
@@ -102,8 +115,12 @@ const MyJournalsScreen: React.FC = ({ navigation }: any) => {
                     <View style={styles.card}>
                         <Image source={{ uri: item.cover_url }} style={styles.cover} />
                         <View style={styles.rightContent}>
-                            <Text style={styles.title}>{item.title}</Text>
-                            <Text numberOfLines={2} style={styles.content}>{item.content}</Text>
+                            <Text style={styles.title}>
+                                {item.title}
+                            </Text>
+                            <Text numberOfLines={2} style={styles.content}>
+                                {item.content}
+                            </Text>
 
                             <View style={styles.bottomRow}>
                                 <View style={{ flex: 1 }}>
@@ -111,7 +128,7 @@ const MyJournalsScreen: React.FC = ({ navigation }: any) => {
                                 </View>
                                 <View style={styles.actionButtons}>
                                     {(item.status === 0 || item.status === 2) && (
-                                        <TouchableOpacity onPress={() => onEdit(item.id, item)} style={styles.editBtn}>
+                                        <TouchableOpacity onPress={() => onEdit(item)} style={styles.editBtn}>
                                             <Text style={styles.btnText}>编辑</Text>
                                         </TouchableOpacity>
                                     )}
@@ -127,8 +144,8 @@ const MyJournalsScreen: React.FC = ({ navigation }: any) => {
         </View>
     );
 
-
 };
+
 
 const styles = StyleSheet.create({
     container: {

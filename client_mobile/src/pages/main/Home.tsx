@@ -12,11 +12,6 @@ import {
 import MasonryList from 'react-native-masonry-list';
 import Svg, { Circle, Path } from "react-native-svg";
 
-const backgroundImage = require('../../assets/images/bg/home.jpg');
-
-const HOST_IP = "115.175.40.241";
-const HOST_PORT = "5000";
-const API_URL = `http://${HOST_IP}:${HOST_PORT}/api`;
 
 type Journal = {
     id: string;
@@ -27,6 +22,14 @@ type Journal = {
     owner_avatar_url: string;
 };
 
+
+const backgroundImage = require('../../assets/images/bg/home.jpg');
+
+const HOST_IP = "115.175.40.241";
+const HOST_PORT = "5000";
+const API_URL = `http://${HOST_IP}:${HOST_PORT}/api`;
+
+
 const Home: React.FC = ({ navigation }: any) => {
     const [journals, setJournals] = useState<Journal[]>([]);
     const [search, setSearch] = useState('');
@@ -35,69 +38,106 @@ const Home: React.FC = ({ navigation }: any) => {
     const [refreshing, setRefreshing] = useState(false);
     const [hasMore, setHasMore] = useState(true);
 
-    const fetchJournals = useCallback(async (isRefresh = false, searchQuery = '') => {
-        if (loading && !isRefresh) return;
 
-        isRefresh ? setRefreshing(true) : setLoading(true);
+    /*
+        core method for fetching journals.
+     */
+    const fetchJournals = useCallback(
+        async (isRefresh = false, searchQuery = '') => {
+        if (loading && !isRefresh) {
+            return;
+        }
+
+        // deciding if it's a refreshing or loading action.
+        isRefresh
+            ? setRefreshing(true)
+            : setLoading(true);
 
         try {
+            // always fetching the first page when it's a refreshing action.
             const pageToLoad = isRefresh ? 1 : page;
-            const res = await fetch(`${API_URL}/journals/items?page=${pageToLoad}&search=${searchQuery}`);
+            const res = await fetch(
+                `${API_URL}/journals/items?page=${pageToLoad}&search=${searchQuery}`);
             const data = await res.json();
-            console.log("In Home Page: ", data);
 
+            // refreshing => replacing existed journals.
             if (isRefresh) {
                 setJournals(data);
                 setHasMore(data.length > 0);
-            } else {
+            }
+            // not refreshing => appending new journals to existed ones
+            else {
                 if (data.length > 0) {
                     setJournals(prev => [...prev, ...data]);
                 } else {
                     setHasMore(false);
                 }
             }
-        } catch (e) {
+        }
+        catch (e) {
             console.error(e);
-        } finally {
-            isRefresh ? setRefreshing(false) : setLoading(false);
+        }
+        finally {
+            // finishing a fetching action.
+            isRefresh
+                ? setRefreshing(false)
+                : setLoading(false);
         }
     }, [page, loading]);
 
 
+    /*
+        fetching the first page of journals on mounted.
+     */
     useEffect(() => {
         fetchJournals(true, search).then(r => {});
     }, []);
 
 
+    /*
+        fetching extra journals on 'page' changed.
+     */
     useEffect(() => {
         if (page === 1) {
             return;
         }
-        console.log(`Calling fetchJournals() from useEffect watching page, page = ${page}`);
         fetchJournals(false, search).then(r => {});
     }, [page]);
 
 
+    /*
+        re-fetching journals from the first page, when search bar changes.
+     */
     const onSearch = () => {
         setHasMore(true);
         setPage(1);
-        console.log(`Calling fetchJournals() from onSearch(), page = ${page}`);
         fetchJournals(true, search).then(r => {});
     };
 
+
+    /*
+        re-fetching journals from the first page on refreshing.
+     */
     const handleRefresh = () => {
         setPage(1);
         setHasMore(true);
-        console.log(`Calling fetchJournals() from handleRefresh(), page = ${page}`);
         fetchJournals(true, search).then(r => {});
     };
 
+
+    /*
+        loading more journals when it reaches the bottom.
+     */
     const handleLoadMore = () => {
         if (hasMore && !loading) {
             setPage(prev => prev + 1);
         }
     };
 
+
+    /*
+        rendering one journal item.
+     */
     const renderItem = (item: Journal) => (
         <TouchableOpacity
             onPress={() => navigation.navigate('Detail', { id: item.id })}
@@ -146,6 +186,8 @@ const Home: React.FC = ({ navigation }: any) => {
                     onEndReachedThreshold={0.9}
                     refreshing={refreshing}
                     onRefresh={handleRefresh}
+
+                    // TODO - fixing the position of bottom-hitting prompt.
                     ListFooterComponent={
                         !hasMore && journals.length > 0 ? (
                             <Text style={styles.endText}>已经到底啦~</Text>
@@ -153,6 +195,7 @@ const Home: React.FC = ({ navigation }: any) => {
                     }
                 />
 
+                {/* placeholders for loading or empty. */}
                 {loading && <ActivityIndicator style={styles.loader} />}
                 {journals.length === 0 && !loading && (
                     <Text style={styles.noDataText}>暂无数据</Text>
@@ -228,5 +271,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
 });
+
 
 export default Home;

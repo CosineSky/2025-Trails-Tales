@@ -1,4 +1,3 @@
-// src/navigation/AppNavigator.tsx
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
@@ -8,6 +7,7 @@ import MainTabNavigator from "./MainTabNavigator.tsx";
 import Detail from "../pages/Detail.tsx";
 import Post from "../pages/main/Post.tsx";
 import Edit from "../pages/Edit.tsx";
+
 
 const Stack = createStackNavigator();
 
@@ -23,5 +23,6 @@ const AppNavigator: React.FC = () => (
         </Stack.Navigator>
     </NavigationContainer>
 );
+
 
 export default AppNavigator;

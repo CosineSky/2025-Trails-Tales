@@ -1,6 +1,6 @@
-// src/components/Input.tsx
 import React from 'react';
 import { TextInput, StyleSheet } from 'react-native';
+
 
 interface InputProps {
     value: string;
@@ -8,6 +8,7 @@ interface InputProps {
     placeholder: string;
     secureTextEntry?: boolean;
 }
+
 
 const Input: React.FC<InputProps> = ({ value, onChangeText, placeholder, secureTextEntry }) => (
     <TextInput
@@ -18,6 +19,7 @@ const Input: React.FC<InputProps> = ({ value, onChangeText, placeholder, secureT
         secureTextEntry={secureTextEntry}
     />
 );
+
 
 const styles = StyleSheet.create({
     input: {
@@ -31,5 +33,6 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255, 255, 255, 0.75)',
     },
 });
+
 
 export default Input;

@@ -1,4 +1,3 @@
-// src/store/reducers/authReducer.ts
 const initialState = {
     isLoggedIn: false,
     user: null,
