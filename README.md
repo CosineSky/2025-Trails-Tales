@@ -20,31 +20,31 @@
 
 > 登陆页面
 
-![login](images\login.jpg)
+![login](images/login.jpg)
 
 > 主界面
 
-![home](F:\G\images\home.jpg)
+![home](images/home.jpg)
 
 > 我的游记页面
 
-![story](F:\G\images\story.jpg)
+![story](images/story.jpg)
 
 > 个人档案页面
 
-![profile](F:\G\images\profile.jpg)
+![profile](images/profile.jpg)
 
 > 游记发布页面
 
-![post](F:\G\images\post.jpg)
+![post](images/post.jpg)
 
 > （网页端）登录页面
 
-![web-login](F:\G\images\web-login.png)
+![web-login](images/web-login.png)
 
 > （网页端）主界面
 
-![web-main](F:\G\images\web-main.png)
+![web-main](images/web-main.png)
 
 
 
