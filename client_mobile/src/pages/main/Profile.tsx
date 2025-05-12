@@ -59,6 +59,10 @@ const UserInfo: React.FC = ({ navigation, route }: any) => {
         loadUser();
     }, []);
 
+    const handleLogout = async () => {
+        navigation.navigate("Login")
+        await AsyncStorage.removeItem('token');
+    }
 
     return (
         <View style={styles.container}>
@@ -119,7 +123,7 @@ const UserInfo: React.FC = ({ navigation, route }: any) => {
 
                     {/* To Login 按钮 */}
                     <TouchableOpacity
-                        onPress={() => navigation.navigate('Login')}
+                        onPress={handleLogout}
                         style={styles.iconButton}
                     >
                         <Svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="black"
