@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../../../db');
-
+const authenticateToken = require('../../../utils/TokenDecoder');
 
 /*
     Modifying the user's profile
  */
-router.post('/profile/update', (req, res) => {
+router.post('/profile/update', authenticateToken,(req, res) => {
     const { id, nickname, avatar } = req.body;
     if (!nickname || !avatar) {
         return res.status(400).json({ error: 'Nickname or avatar can\'t be empty!' });
@@ -31,7 +31,7 @@ router.post('/profile/update', (req, res) => {
 /*
     Fetching the user's profile.
  */
-router.get('/profile/fetch', (req, res) => {
+router.get('/profile/fetch', authenticateToken,(req, res) => {
     const { id } = req.query;
     const sql = 'SELECT id, username, nickname, avatar, role FROM users WHERE id = ?';
     db.query(sql, [id], (err, results) => {

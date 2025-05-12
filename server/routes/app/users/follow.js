@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../../../db');
-
+const authenticateToken = require('../../../utils/TokenDecoder');
 
 /*
     Follow.
  */
-router.post('/follow', (req, res) => {
+router.post('/follow', authenticateToken,(req, res) => {
     const { follower_id, followee_id } = req.body;
     const sql = 'INSERT INTO follows (follower_id, followee_id) VALUES (?, ?)';
     db.query(sql, [follower_id, followee_id], (err, result) => {
@@ -23,7 +23,7 @@ router.post('/follow', (req, res) => {
 /*
     Unfollow.
  */
-router.delete('/follow', (req, res) => {
+router.delete('/follow', authenticateToken,(req, res) => {
     const { follower_id, followee_id } = req.body;
     const sql = 'DELETE FROM follows WHERE follower_id = ? AND followee_id = ?';
     db.query(sql, [follower_id, followee_id], (err, result) => {
@@ -40,7 +40,7 @@ router.delete('/follow', (req, res) => {
 /*
     Getting the amount of followers & followees.
  */
-router.get('/follow/stats/:user_id', (req, res) => {
+router.get('/follow/stats/:user_id', authenticateToken ,(req, res) => {
     const { user_id } = req.params;
 
     const sqlFollowers = 'SELECT COUNT(*) AS followers FROM follows WHERE followee_id = ?';

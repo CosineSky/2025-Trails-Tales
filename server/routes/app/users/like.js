@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../../../db');
-
+const authenticateToken = require('../../../utils/TokenDecoder');
 
 /*
     Like.
  */
-router.post('/like', (req, res) => {
+router.post('/like', authenticateToken,(req, res) => {
     const { journal_id, user_id } = req.body;
     const sql = 'INSERT INTO likes (journal_id, user_id) VALUES (?, ?)';
     db.query(sql, [journal_id, user_id], (err, result) => {
@@ -23,7 +23,7 @@ router.post('/like', (req, res) => {
 /*
     Dislike.
  */
-router.delete('/like', (req, res) => {
+router.delete('/like', authenticateToken,(req, res) => {
     const { journal_id, user_id } = req.body;
     const sql = 'DELETE FROM likes WHERE journal_id = ? AND user_id = ?';
     db.query(sql, [journal_id, user_id], (err, result) => {
@@ -40,7 +40,7 @@ router.delete('/like', (req, res) => {
 /*
     Getting the amount of likes of a journal.
  */
-router.get('/like/count/:journal_id', (req, res) => {
+router.get('/like/count/:journal_id',authenticateToken, (req, res) => {
     const { journal_id } = req.params;
     const sql = 'SELECT COUNT(*) AS count FROM likes WHERE journal_id = ?';
     db.query(sql, [journal_id], (err, results) => {
@@ -57,7 +57,7 @@ router.get('/like/count/:journal_id', (req, res) => {
 /*
     Decide if a user liked a specific journal.
  */
-router.get('/like/status', (req, res) => {
+router.get('/like/status', authenticateToken,(req, res) => {
     const { journal_id, user_id } = req.query;
 
     if (!journal_id || !user_id) {
