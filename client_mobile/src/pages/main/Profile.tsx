@@ -40,6 +40,13 @@ const UserInfo: React.FC = ({ navigation, route }: any) => {
         const loadUser = async () => {
             try {
                 const token = await AsyncStorage.getItem('token') as string;
+                if(!token){
+                    //若用户未登录，提示并跳转到登陆页面
+                    console.log("用户未登录")
+                    Alert.alert('您还没有登录，请先登录后再查看个人信息')
+                    navigation.replace('Login');
+                    return
+                }
                 decodedUserToken.current = jwtDecode<DecodedToken>(token);
                 const userData = await fetchProfile(decodedUserToken.current.userId);
                 setNickname(userData.user.nickname);

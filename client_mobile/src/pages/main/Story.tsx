@@ -37,9 +37,24 @@ const MyJournalsScreen: React.FC = ({ navigation }: any) => {
     useEffect(() => {
         const fetchToken = async () => {
             const token = await AsyncStorage.getItem('token') as string;
-            const decoded: any = jwtDecode(token); // { userId, username, role }
-            currentUserId = decoded.userId;
-            console.log("token", decoded.userId);
+            if(!token){
+                //若用户未登录，提示并跳转到登陆页面
+                console.log("用户未登录")
+                Alert.alert('您还没有登录，请先登录后再查看个人游记')
+                navigation.replace('Login');
+                return
+            }
+            try{
+                const decoded: any = jwtDecode(token); // { userId, username, role }
+                currentUserId = decoded.userId;
+                console.log("token", decoded.userId);
+            }catch(error){
+                console.log("token解析失败")
+                Alert.alert("用户登录状态异常，请重新登录后再试一次")
+                //清除异常token
+                await AsyncStorage.removeItem('token')
+                navigation.replace('Login');
+            }
         }
         const fetchMyJournals = async () => {
             try {
@@ -77,6 +92,7 @@ const MyJournalsScreen: React.FC = ({ navigation }: any) => {
 
 
     const onEdit = (journal: Journal) => {
+        //对已有游记进行编辑
         navigation.navigate('Post', { journal, isEdit: true });
     };
 
@@ -89,6 +105,7 @@ const MyJournalsScreen: React.FC = ({ navigation }: any) => {
                     axios.put(`${API_URL}/journals/delete/${id}`)
                         .then((response) => {
                             console.log('删除成功！');
+                            //过滤掉已经删除的游记，更新journals
                             const updatedJournals = journals.filter(journal => journal.id !== id);
                             setJournals(updatedJournals);
                         })
