@@ -1,35 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../../../db');
-const jwt = require('jsonwebtoken');
-
-
-/*
-    JWT Auth, prevents journal posting without login status.
- */
-function authenticateToken(req, res, next) {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-    if (!token) {
-        return res.sendStatus(401);
-    }
-
-    jwt.verify(token, 'i-dont-know-what-to-put-here', (err, user) => {
-        if (err) return res.sendStatus(403);
-        req.user = user;
-        next();
-    });
-}
+const authenticateToken = require("../../../utils/TokenDecoder");
 
 
 /*
     Posting a journal
  */
-// TODO: Adding JWT Auth.
-router.post('/upload', /* authenticateToken, */ (req, res) => {
+router.post('/upload',  authenticateToken,  (req, res) => {
     const { title, content, cover_url, video_url, pictures } = req.body;
-    const owner_id = 2;
-    // const owner_id = req.user.userId;
+    //const owner_id = 2;
+    const owner_id = req.user.userId;
     if (!title || !content || !cover_url || !Array.isArray(pictures)) {
         return res.status(400).json({ message: 'Invalid request body' });
     }

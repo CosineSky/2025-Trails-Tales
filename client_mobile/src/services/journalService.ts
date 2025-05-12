@@ -4,6 +4,7 @@ const HOST_IP = "115.175.40.241"; // This gives 127.0.0.1 in host device.
 const HOST_PORT = "5000";
 const API_URL = `http://${HOST_IP}:${HOST_PORT}/api`;
 
+import apiClient from "./apiClient"
 
 type Journal = {
     title : string;
@@ -16,7 +17,7 @@ type Journal = {
 
 export const createJournal  = async (journal: Journal) => {
     try {
-        const response = await axios.post(
+        const response = await apiClient.post(
             `${API_URL}/journals/upload`, journal);
         return response.data;
     } catch (error) {
