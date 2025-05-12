@@ -137,17 +137,17 @@ export default function Post({navigation}: any) {
 
     const handlePublish = async () => {
         if (!title.trim()) {
-            Alert.alert('标题不能为空！');
+            Alert.alert('请给游记添加标题');
             return;
         }
         if (!content.trim()) {
-            Alert.alert('内容不能为空！');
+            Alert.alert('请填写游记内容');
             return;
         }
-        // if (!pictures.length) {
-        //     Alert.alert('请上传图片！');
-        //     return;
-        // }
+        if (!pictures.length) {
+            Alert.alert('请给游记添加图片');
+            return;
+        }
 
         // info of the new journal.
         const pic_urls = await Promise.all(
