@@ -30,8 +30,9 @@ const TravelNoteAdmin = () => {
     const [loading, setLoading] = useState(true);
     const currentRole = localStorage.getItem('role');
 
+
     useEffect(() => {
-        axios.get(`http://${HOST_IP}:5000/api/journals/items`)
+        axios.get(`http://${HOST_IP}:5000/api/journals/all`)
             .then((res) => {
                 setJournals(res.data);
             })
@@ -42,13 +43,6 @@ const TravelNoteAdmin = () => {
             .finally(() => setLoading(false));
     }, []);
 
-    // const filteredData = useMemo(() => {
-    //     return statusFilter === 'all'
-    //         ? journals
-    //         : journals.filter(
-    //             (journal) => journal.status === parseInt(statusFilter)
-    //         );
-    // }, [statusFilter, journals]);
 
     const filteredData = useMemo(() => {
         return journals?.filter((journal) => {

@@ -18,7 +18,33 @@
 
 ## 📷 截图展示
 
-> 请在此处添加几张应用截图，展示首页、详情页、编辑页等
+> 登陆页面
+
+![login](images\login.jpg)
+
+> 主界面
+
+![home](F:\G\images\home.jpg)
+
+> 我的游记页面
+
+![story](F:\G\images\story.jpg)
+
+> 个人档案页面
+
+![profile](F:\G\images\profile.jpg)
+
+> 游记发布页面
+
+![post](F:\G\images\post.jpg)
+
+> （网页端）登录页面
+
+![web-login](F:\G\images\web-login.png)
+
+> （网页端）主界面
+
+![web-main](F:\G\images\web-main.png)
 
 
 

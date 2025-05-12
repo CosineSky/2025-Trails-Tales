@@ -34,6 +34,8 @@ router.post('/upload', /* authenticateToken, */ (req, res) => {
         return res.status(400).json({ message: 'Invalid request body' });
     }
 
+    console.log('HI:', title, content, cover_url);
+
     const insertJournalSql = 'INSERT INTO journals (title, content, cover_url, video_url, owner_id, created_at) VALUES (?, ?, ?, ?, ?, NOW())';
 
     db.query(insertJournalSql, [title, content, cover_url, video_url || null, owner_id], (err, result) => {

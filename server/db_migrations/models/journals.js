@@ -53,6 +53,10 @@ module.exports = (sequelize) => {
             allowNull: true,
             defaultValue: '',
         },
+        location: {
+            type: DataTypes.STRING(1024),
+            allowNull: true,
+        }
     }, {
         tableName: 'journals',
         timestamps: false,

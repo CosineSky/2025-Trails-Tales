@@ -43,6 +43,7 @@ export const uploadSingleFile = async (asset: Asset): Promise<string> => {
         throw new Error('文件路径为空');
     }
     //压缩图片
+    console.log('before compressing.');
     let compressedUri = uri;
     if (type.startsWith('image/')) {
         try {
@@ -66,11 +67,13 @@ export const uploadSingleFile = async (asset: Asset): Promise<string> => {
         type,
     } as any);
 
+    console.log('before oss.')
     const res = await fetch(`${API_URL}/utils/oss`, {
         method: 'POST',
         body: formData,
         headers: { 'Content-Type': 'multipart/form-data' }
     });
+    console.log('after oss.')
 
     const data = await res.json();
     return data.url;

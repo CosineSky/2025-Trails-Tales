@@ -9,9 +9,19 @@ import {
     StyleSheet,
     ImageBackground,
     Alert,
+    Platform,
 } from "react-native";
 import {useSelector} from "react-redux";
 import {RouteProp, useRoute} from "@react-navigation/native";
+import { MapView, Marker, MapType, AMapSdk } from 'react-native-amap3d';
+
+
+AMapSdk.init(
+    Platform.select({
+        android: "50535d6188f43a27bdc68d5732cad8c7",
+    })
+);
+
 
 // external modules.
 import Input from '../../components/Input';
@@ -22,6 +32,7 @@ import {handleFilePick, uploadSingleFile} from "../../services/selectAndUploadFi
 
 // utils
 import axios from "axios";
+import {getAddressFromCoords} from "../../services/mapService.ts";
 
 
 type Journal = {
@@ -31,6 +42,7 @@ type Journal = {
     cover_url: string;
     video_url: string;
     pictures: Array<string>;
+    location: string;
 }
 type RouteParams = {
     journal?: Journal;  // 现有的游记数据
@@ -54,6 +66,11 @@ export default function Post({navigation}: any) {
     const [pictures, setPictures] = useState<Asset[]>([]);
     const [video, setVideo] = useState<Asset>();
     const user = useSelector((state: any) => state.auth.user);
+    const [location, setLocation] = useState('');
+    const [markerPosition, setMarkerPosition] = useState<{
+        latitude: number;
+        longitude: number
+    } | null>(null);
 
 
     useEffect(() => {
@@ -101,6 +118,23 @@ export default function Post({navigation}: any) {
     }
 
 
+    const handleMapMarkers = async (nativeEvent: {
+        latitude: any;
+        longitude: any;
+    }) => {
+        const { latitude, longitude } = nativeEvent;
+        setMarkerPosition({ latitude, longitude });
+        const locationInfo = await getAddressFromCoords(latitude, longitude);
+        if (locationInfo) {
+            setLocation(locationInfo.city);
+            Alert.alert(
+                "确认足迹",
+                `城市: ${locationInfo.city}\n地址: ${locationInfo.address}`
+            );
+        }
+    }
+
+
     const handlePublish = async () => {
         if (!title.trim()) {
             Alert.alert('标题不能为空！');
@@ -110,10 +144,10 @@ export default function Post({navigation}: any) {
             Alert.alert('内容不能为空！');
             return;
         }
-        if (!pictures.length) {
-            Alert.alert('请上传图片！');
-            return;
-        }
+        // if (!pictures.length) {
+        //     Alert.alert('请上传图片！');
+        //     return;
+        // }
 
         // info of the new journal.
         const pic_urls = await Promise.all(
@@ -125,6 +159,7 @@ export default function Post({navigation}: any) {
             cover_url: pic_urls[0] || '',
             video_url: video_url || '',
             pictures: pic_urls,
+            location: location,
         };
 
         // creating a new journal.
@@ -164,6 +199,32 @@ export default function Post({navigation}: any) {
             resizeMode="cover"
         >
             <ScrollView contentContainerStyle={styles.container}>
+
+                {/* map */}
+                <Text style={styles.label}>标记足迹</Text>
+                <MapView
+                    style={{ width: '100%', height: 300 }}
+                    mapType={MapType.Satellite}
+                    initialCameraPosition={{
+                        target: {
+                            latitude: 39.91095,
+                            longitude: 116.37296,
+                        },
+                        zoom: 8,
+                    }}
+                    onLoad={() => getAddressFromCoords(0, 0)}
+                    onPress={async ({ nativeEvent }) => handleMapMarkers(nativeEvent)}
+                >
+                    {markerPosition && (
+                        <Marker
+                            position={markerPosition}
+                            icon={require("../../assets/tiny/footstep.png")}
+                            onPress={() => Alert.alert("Marker Pressed")}
+                        />
+                    )}
+                </MapView>;
+
+
                 {/* title input bar. */}
                 <Text style={styles.label}>游记标题</Text>
                 <Input

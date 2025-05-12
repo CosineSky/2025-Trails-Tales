@@ -42,6 +42,43 @@ router.get('/items', (req, res) => {
 
 
 /*
+    Getting a list of journals
+ */
+router.get('/all', (req, res) => {
+    const search = req.query.search;
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = req.query.page ? 10 : 32767;
+    const offset = (page - 1) * pageSize;
+
+    let sql = `
+        SELECT
+            journals.*,
+            users.nickname AS owner_nickname,
+            users.avatar AS owner_avatar_url
+        FROM journals
+                 LEFT JOIN users ON journals.owner_id = users.id
+    `;
+    let params = [];
+
+    if (search) {
+        sql += ' AND journals.title LIKE ?';
+        params.push(`%${search}%`);
+    }
+
+    sql += ' LIMIT ? OFFSET ?';
+    params.push(pageSize, offset);
+
+    db.query(sql, params, (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        } else {
+            return res.status(200).json(results);
+        }
+    });
+});
+
+
+/*
     Getting the detailed information by journal ID.
  */
 router.get('/getById', (req, res) => {

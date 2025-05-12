@@ -42,6 +42,7 @@ type Journal = {
     owner_nickname: string;
     owner_avatar_url: string;
     created_at: string;
+    location: string;
 };
 
 
@@ -193,6 +194,7 @@ export default function Detail() {
                     owner_nickname: data.owner_nickname,
                     owner_avatar_url: data.owner_avatar_url,
                     created_at: data.created_at,
+                    location: data.location,
                 });
             } catch (error) {
                 console.error('Fetch error:', error);
@@ -368,6 +370,12 @@ export default function Detail() {
                             <Path d="M22 19h-6"/>
                         </Svg>
                     </TouchableOpacity>
+                </View>
+
+                {/* location info card */}
+                <View style={styles.locationCard}>
+                    <Text style={styles.locationLabel}>📍 足迹地点</Text>
+                    <Text style={styles.locationText}>{journal.location || '作者很神秘，没有给出地点哦~'}</Text>
                 </View>
 
                 {/* separator */}
@@ -608,5 +616,29 @@ const styles = StyleSheet.create({
         height: 1,
         backgroundColor: '#515151',  // 设置分割线颜色
         marginVertical: 10,        // 控制分割线的上下间距
+    }
+    ,locationCard: {
+        backgroundColor: 'rgba(255, 255, 255, 0.85)',
+        padding: 12,
+        borderRadius: 12,
+        marginHorizontal: 16,
+        marginTop: 12,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.2,
+        shadowRadius: 3,
+        elevation: 3,
     },
+    locationLabel: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 4,
+        color: '#333',
+    },
+    locationText: {
+        fontSize: 14,
+        color: '#555',
+        alignSelf: 'center',
+    },
+
 });
