@@ -42,6 +42,9 @@ export default function Login() {
             message.success('登录成功！');
             navigate('/home');
         }
+        else {
+            message.error('用户名或密码错误！');
+        }
 
     };
 
