@@ -8,10 +8,21 @@ import {
     Space,
     Select,
     Button,
-    message
+    message,
+    Tooltip,
 } from 'antd';
 import axios from "axios";
 import {useNavigate} from "react-router-dom";
+import {
+    DeleteOutlined,
+    DislikeOutlined,
+    DislikeTwoTone,
+    FileTwoTone,
+    InfoCircleOutlined,
+    LikeOutlined,
+    LikeTwoTone,
+    VideoCameraTwoTone
+} from '@ant-design/icons';
 import logo from '../../assets/images/logo.png';
 
 
@@ -26,12 +37,14 @@ const statusMap = {
     3: { text: '已删除', color: 'red' },
 };
 
+
 const TravelNoteAdmin = () => {
     const navigate = useNavigate();
 
-    const [statusFilter, setStatusFilter] = useState('all');
+    const [statusFilter, setStatusFilter] = useState('0');
     const [searchTitle, setSearchTitle] = useState('');
     const [searchAuthor, setSearchAuthor] = useState('');
+    const [sortOption, setSortOption] = useState(null);
 
     const [selectedJournal, setSelectedJournal] = useState(null);
     const [journals, setJournals] = useState(null);
@@ -54,18 +67,35 @@ const TravelNoteAdmin = () => {
 
 
     const filteredData = useMemo(() => {
-        return journals?.filter((journal) => {
+        let result = journals?.filter((journal) => {
             const statusMatch =
                 statusFilter === 'all' || journal.status === parseInt(statusFilter);
             const titleMatch = journal.title
                 .toLowerCase()
                 .includes(searchTitle.toLowerCase());
-            const authorMatch = (`用户${journal.owner_id}`)
+            const authorMatch = journal.owner_nickname
                 .toLowerCase()
                 .includes(searchAuthor.toLowerCase());
             return statusMatch && titleMatch && authorMatch;
         });
-    }, [statusFilter, searchTitle, searchAuthor, journals]);
+
+        if (sortOption === 'created_at_desc') {
+            result = result?.slice().sort((a, b) =>
+                new Date(b.created_at) - new Date(a.created_at));
+        } else if (sortOption === 'created_at_asc') {
+            result = result?.slice().sort((a, b) =>
+                new Date(a.created_at) - new Date(b.created_at));
+        } else if (sortOption === 'status_asc') {
+            result = result?.slice().sort((a, b) =>
+                a.status - b.status);
+        } else if (sortOption === 'status_desc') {
+            result = result?.slice().sort((a, b) =>
+                b.status - a.status);
+        }
+
+        return result;
+    }, [statusFilter, searchTitle, searchAuthor, journals, sortOption]);
+
 
 
     const columns = [
@@ -73,44 +103,85 @@ const TravelNoteAdmin = () => {
             title: '游记标题',
             dataIndex: 'title',
             key: 'title',
+            width: 500,
         },
         {
             title: '作者',
-            dataIndex: 'owner_id',
-            key: 'owner_id',
-            render: (owner_id) => `用户${owner_id}`,
+            dataIndex: 'owner_nickname',
+            key: 'owner_nickname',
+            width: 200,
+        },
+        {
+            title: '发布时间',
+            dataIndex: 'created_at',
+            key: 'created_at',
+            width: 200,
+            render: (timestamp) => {
+                return `${timestamp.substring(0, 10)}`;
+            },
         },
         {
             title: '当前状态',
             dataIndex: 'status',
             key: 'status',
-            render: (status) => {
+            width: 200,
+            render: (status, record) => {
                 const { text, color } = statusMap[status] || {};
-                return <Tag color={color}>{text}</Tag>;
+                return (
+                    <>
+                        <Tag color={color}>{text}</Tag>
+                        {status === 2 && record.detail_status && (
+                            <Tooltip title={`拒绝原因：${record.detail_status}`}>
+                                <InfoCircleOutlined
+                                    style={{ color: '#ff862e' }} />
+                            </Tooltip>
+                        )}
+                    </>
+                );
             },
         },
+
         {
             title: '操作',
             key: 'action',
             render: (text, record) => (
                 <Space>
-                    <Button onClick={() => handleApprove(record)} disabled={record.status === 1}>
-                        通过
-                    </Button>
-                    <Button
-                        onClick={() => handleReject(record)}
-                        disabled={record.status === 2}
-                    >
-                        拒绝
-                    </Button>
-                    {currentRole === '2' && (
-                        <Button onClick={() => handleDelete(record)} danger>
-                            删除
+                    <Tooltip title="查看详情">
+                        <Button
+                            onClick={() => handleViewDetails(record)}
+                            icon={<FileTwoTone />}
+                        >{/**/}
                         </Button>
+                    </Tooltip>
+                    <Tooltip title="通过">
+                        <Button
+                            onClick={() => handleApprove(record)}
+                            disabled={record.status === 1 || record.status === 3}
+                            icon={record.status === 1 || record.status === 3
+                                ? <LikeOutlined /> : <LikeTwoTone />}
+                        >{/**/}
+                        </Button>
+                    </Tooltip>
+                    <Tooltip title="拒绝">
+                        <Button
+                            onClick={() => handleReject(record)}
+                            disabled={record.status === 2 || record.status === 3}
+                            icon={record.status === 2 || record.status === 3
+                                ? <DislikeOutlined /> : <DislikeTwoTone />}
+                        >{/**/}
+                        </Button>
+                    </Tooltip>
+                    {currentRole === '2' && (
+                        <Tooltip title="删除">
+                            <Button
+                                onClick={() => handleDelete(record)}
+                                disabled={record.status === 3}
+                                icon={<DeleteOutlined />}
+                                danger
+                            >{/**/}
+                            </Button>
+                        </Tooltip>
                     )}
-                    <Button onClick={() => handleViewDetails(record)} type="link">
-                        详情
-                    </Button>
                 </Space>
             ),
         },
@@ -153,21 +224,20 @@ const TravelNoteAdmin = () => {
                     message.error('请填写拒绝理由');
                     return Promise.reject(); // 阻止 Modal 自动关闭
                 }
-
-                console.log(inputReason, record.id);
-
                 axios.put(`http://${HOST_IP}:5000/api/journals/reject/${record.id}`, { rejectionReason: inputReason })
                     .then((response) => {
-                        message.success(response.data.message);
-                        // 更新前端状态
+                        message
+                            .success(response.data.message)
+                            .then(r => {});
                         const updatedJournals = journals.map((item) =>
-                            item.id === record.id ? { ...item, status: 2, rejectionReason: inputReason } : item
+                            item.id === record.id
+                                ? { ...item, status: 2, rejectionReason: inputReason }
+                                : item
                         );
                         setJournals(updatedJournals);
                     })
                     .catch((err) => {
-                        console.log(err);
-                        message.error('拒绝操作失败');
+                        message.error(`拒绝操作失败: ${err}`);
                     });
             },
         });
@@ -181,24 +251,33 @@ const TravelNoteAdmin = () => {
             onOk: () => {
                 axios.put(`http://${HOST_IP}:5000/api/journals/delete/${record.id}`)
                     .then((response) => {
-                        message.success(response.data.message);
-                        // 更新前端状态
+                        message
+                            .success(response.data.message)
+                            .then(r => {});
                         const updatedJournals = journals.map((item) =>
-                            item.id === record.id ? { ...item, deleted: true } : item
+                            item.id === record.id
+                                ? { ...item, status: 3 }
+                                : item
                         );
                         setJournals(updatedJournals);
                     })
                     .catch((err) => {
-                        console.log(err);
-                        message.error('删除操作失败');
+                        message.error(`删除操作失败: ${err}`);
                     });
             },
         });
     };
 
 
-    const handleViewDetails = (record) => {
-        setSelectedJournal(record);
+    const handleViewDetails = async (record) => {
+        // setSelectedJournal(record);
+        try {
+            const res = await axios.get(
+                `http://${HOST_IP}:5000/api/journals/getById?search=${record.id}`);
+            setSelectedJournal(res.data);
+        } catch (err) {
+            message.error(`加载游记详情失败: ${err}`);
+        }
     };
 
     const handleModalClose = () => {
@@ -245,6 +324,7 @@ const TravelNoteAdmin = () => {
                                 {value: '0', label: '待审核'},
                                 {value: '1', label: '已通过'},
                                 {value: '2', label: '未通过'},
+                                {value: '3', label: '已删除'},
                             ]}
                         />
                         <Input
@@ -261,6 +341,17 @@ const TravelNoteAdmin = () => {
                             onChange={(e) => setSearchAuthor(e.target.value)}
                             style={{width: 200, backgroundColor: 'rgba(255, 255, 255, 0.9)'}}
                         />
+                        <Select
+                            placeholder="排序方式"
+                            style={{ width: 160 }}
+                            onChange={(value) => setSortOption(value)}
+                            allowClear
+                        >
+                            <Option value="created_at_desc">按发布时间降序</Option>
+                            <Option value="created_at_asc">按发布时间升序</Option>
+                            <Option value="status_asc">按状态升序</Option>
+                            <Option value="status_desc">按状态降序</Option>
+                        </Select>
                     </Space>
 
                     <Table
@@ -271,7 +362,6 @@ const TravelNoteAdmin = () => {
                     />
                 </div>
             </div>
-
             {selectedJournal && (
                 <Modal
                     title={selectedJournal.title}
@@ -281,34 +371,46 @@ const TravelNoteAdmin = () => {
                     width={800}
                 >
                     <div>
-                        <img
-                            src={selectedJournal.cover_url}
-                            alt="cover"
-                            style={{ width: '100%', height: 'auto' }}
-                        />
+                        {/* 所有图片展示 */}
+                        <div style={{
+                            display: 'flex',
+                            overflowX: 'auto',
+                            gap: 8,
+                            paddingBottom: 8
+                        }}>
+                            {selectedJournal.pictures.length > 0
+                                ? selectedJournal.pictures.map((url, index) => (
+                                <img
+                                    key={index}
+                                    src={url}
+                                    alt={`journal-img-${index}`}
+                                    style={{ width: '48%', height: 'auto', borderRadius: 6 }}
+                                />
+                            )) : (
+                                <img
+                                    src={selectedJournal.cover_url}
+                                    alt="cover"
+                                    style={{ width: 600, height: 'auto' }}
+                                />
+                            )}
+                        </div>
                         <p>{selectedJournal.content}</p>
                         <p>
                             <strong>视频链接：</strong>
-                            <a
-                                href={selectedJournal.video_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                {selectedJournal.video_url}
-                            </a>
-                        </p>
-                        <p>
-                            <strong>浏览量：</strong>{selectedJournal.view_count}
-                        </p>
-                        <p>
-                            <strong>点赞数：</strong>{selectedJournal.like_count}
-                        </p>
-                        <p>
-                            <strong>创建时间：</strong>{selectedJournal.created_at}
+                            {selectedJournal.video_url ? (
+                                <Button
+                                    icon={<VideoCameraTwoTone />}
+                                    onClick={() => {
+                                        window.open(selectedJournal.video_url, '_blank')
+                                    }}
+                                >Video</Button>
+                            ) : ("无")}
                         </p>
                     </div>
                 </Modal>
             )}
+
+
         </div>
     );
 };
