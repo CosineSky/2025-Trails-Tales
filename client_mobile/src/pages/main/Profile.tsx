@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
     },
     avatarContainer: {
         position: 'absolute',
-        top: '47%',
+        top: '50%',
         left: '50%',
         transform: [{ translateX: -50 }, { translateY: -50 }],
         zIndex: 1,

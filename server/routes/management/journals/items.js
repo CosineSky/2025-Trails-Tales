@@ -24,7 +24,7 @@ router.get('/items', (req, res) => {
     let params = [];
 
     if (search) {
-        sql += ' AND journals.title LIKE ?';
+        sql += ' AND (journals.title LIKE ? OR users.nickname LIKE ?)';
         params.push(`%${search}%`);
     }
 
@@ -61,7 +61,7 @@ router.get('/all', (req, res) => {
     let params = [];
 
     if (search) {
-        sql += ' AND journals.title LIKE ?';
+        sql += ' AND (journals.title LIKE ? OR users.nickname LIKE ?)';
         params.push(`%${search}%`);
     }
 

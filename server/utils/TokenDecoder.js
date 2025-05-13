@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+
 /*
     JWT Auth, prevents journal posting without login status.
  */
@@ -16,12 +17,14 @@ function authenticateToken(req, res, next) {
             console.log("验证失败:", err.message); // 输出具体的错误信息
             return res.sendStatus(403);
         }
+        else {
+            console.log("解码成功:", decoded); // 直接输出对象，便于查看完整内容
+            req.user = decoded;
+            next();
+        }
 
-        console.log("解码成功:", decoded); // 直接输出对象，便于查看完整内容
-        req.user = decoded;
-        next();
     });
     console.log("decode complete");
 }
 
-module.exports =  authenticateToken;
+module.exports = authenticateToken;

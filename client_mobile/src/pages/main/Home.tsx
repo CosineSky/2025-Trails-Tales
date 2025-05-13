@@ -2,12 +2,13 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
     View,
     Text,
+    Image,
     TextInput,
     StyleSheet,
-    TouchableOpacity,
-    Image,
     ActivityIndicator,
-    ImageBackground
+    ImageBackground,
+    TouchableOpacity,
+    Dimensions
 } from 'react-native';
 import MasonryList from 'react-native-masonry-list';
 import Svg, { Circle, Path } from "react-native-svg";
@@ -22,12 +23,16 @@ type Journal = {
     owner_avatar_url: string;
 };
 
-
 const backgroundImage = require('../../assets/images/bg/home.jpg');
 
 const HOST_IP = "115.175.40.241";
 const HOST_PORT = "5000";
 const API_URL = `http://${HOST_IP}:${HOST_PORT}/api`;
+
+
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+const ITEM_WIDTH = screenWidth * 0.45;
+const ITEM_HEIGHT = ITEM_WIDTH;
 
 
 const Home: React.FC = ({ navigation }: any) => {
@@ -177,10 +182,10 @@ const Home: React.FC = ({ navigation }: any) => {
                     images={journals.map(j => ({
                         ...j,
                         uri: j.cover_url,
-                        dimensions: { width: 200, height: 200, margin: 5 },
+                        dimensions: { width: ITEM_WIDTH, height: ITEM_HEIGHT, margin: 5 },
                         key: j.id
                     }))}
-                    style={{ width: 200, height: 200 }}
+                    style={{ width: ITEM_WIDTH, height: ITEM_HEIGHT }}
                     renderIndividualFooter={renderItem}
                     onEndReached={handleLoadMore}
                     onEndReachedThreshold={0.9}
@@ -254,7 +259,7 @@ const styles = StyleSheet.create({
         marginVertical: 10
     },
     footerContainer: {
-        width: 195,
+        width: ITEM_WIDTH,
         paddingHorizontal: 6,
         paddingVertical: 4,
         backgroundColor: 'rgba(255, 255, 255, 0.85)',

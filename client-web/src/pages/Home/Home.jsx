@@ -1,6 +1,15 @@
 import './Home.css';
 import React, {useState, useEffect, useMemo} from 'react';
-import { Table, Tag, Select, Space, Button, Modal, Input, message } from 'antd';
+import {
+    Tag,
+    Table,
+    Modal,
+    Input,
+    Space,
+    Select,
+    Button,
+    message
+} from 'antd';
 import axios from "axios";
 import {useNavigate} from "react-router-dom";
 import logo from '../../assets/images/logo.png';

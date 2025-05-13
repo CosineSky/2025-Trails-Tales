@@ -21,7 +21,7 @@ module.exports = (sequelize) => {
         avatar: {
             type: DataTypes.STRING(250),
             allowNull: true,
-            defaultValue: 'DEFAULT',
+            defaultValue: 'https://bucket-cloudsky.oss-cn-nanjing.aliyuncs.com/trails-tales-default-avatar.jpg',
         },
         password: {
             type: DataTypes.STRING(50),

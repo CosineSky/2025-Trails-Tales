@@ -39,7 +39,6 @@ export const getLikeCount = async (journal_id: number) => {
     Decide if a user liked a specific journal.
  */
 export const getLikeStatus = async (journal_id: number, user_id: number) => {
-
     const res = await apiClient.get(`${API_URL}/like/status`, {
         params: { journal_id, user_id }
     });

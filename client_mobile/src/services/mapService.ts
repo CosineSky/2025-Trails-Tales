@@ -19,3 +19,4 @@ export const getAddressFromCoords = async (latitude: number, longitude: number) 
         return null;
     }
 };
+

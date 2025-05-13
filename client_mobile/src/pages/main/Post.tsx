@@ -201,28 +201,28 @@ export default function Post({navigation}: any) {
             <ScrollView contentContainerStyle={styles.container}>
 
                 {/* map */}
-                <Text style={styles.label}>标记足迹</Text>
-                <MapView
-                    style={{ width: '100%', height: 300 }}
-                    mapType={MapType.Satellite}
-                    initialCameraPosition={{
-                        target: {
-                            latitude: 39.91095,
-                            longitude: 116.37296,
-                        },
-                        zoom: 8,
-                    }}
-                    onLoad={() => getAddressFromCoords(0, 0)}
-                    onPress={async ({ nativeEvent }) => handleMapMarkers(nativeEvent)}
-                >
-                    {markerPosition && (
-                        <Marker
-                            position={markerPosition}
-                            icon={require("../../assets/tiny/footstep.png")}
-                            onPress={() => Alert.alert("Marker Pressed")}
-                        />
-                    )}
-                </MapView>;
+                {/*<Text style={styles.label}>标记足迹</Text>*/}
+                {/*<MapView*/}
+                {/*    style={{ width: '100%', height: 300 }}*/}
+                {/*    mapType={MapType.Satellite}*/}
+                {/*    initialCameraPosition={{*/}
+                {/*        target: {*/}
+                {/*            latitude: 32.050303,*/}
+                {/*            longitude: 118.781696,*/}
+                {/*        },*/}
+                {/*        zoom: 12,*/}
+                {/*    }}*/}
+                {/*    onLoad={() => getAddressFromCoords(0, 0)}*/}
+                {/*    onPress={async ({ nativeEvent }) => handleMapMarkers(nativeEvent)}*/}
+                {/*>*/}
+                {/*    {markerPosition && (*/}
+                {/*        <Marker*/}
+                {/*            position={markerPosition}*/}
+                {/*            icon={require("../../assets/tiny/footstep.png")}*/}
+                {/*            onPress={() => Alert.alert("Marker Pressed")}*/}
+                {/*        />*/}
+                {/*    )}*/}
+                {/*</MapView>;*/}
 
 
                 {/* title input bar. */}
