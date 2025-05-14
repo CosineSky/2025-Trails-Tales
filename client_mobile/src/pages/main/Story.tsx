@@ -28,49 +28,52 @@ type Journal = {
 
 const MyJournalsScreen: React.FC = ({ navigation }: any) => {
     const [journals, setJournals] = useState<Journal[]>([]);
-    let currentUserId: number;
+    const [refreshing, setRefreshing] = useState(false);
+    const [userId, setUserId] = useState<number | null>(null);
 
 
     /*
         on mounted.
      */
     useEffect(() => {
-        const fetchToken = async () => {
+        const fetchTokenAndData = async () => {
             const token = await AsyncStorage.getItem('token') as string;
-            if(!token){
-                //若用户未登录，提示并跳转到登陆页面
-                console.log("用户未登录")
-                Alert.alert('您还没有登录，请先登录后再查看个人游记')
+            if (!token) {
+                Alert.alert('您还没有登录，请先登录后再查看个人游记');
                 navigation.replace('Login');
-                return
+                return;
             }
-            try{
-                const decoded: any = jwtDecode(token); // { userId, username, role }
-                currentUserId = decoded.userId;
-                console.log("token", decoded.userId);
-            }catch(error){
-                console.log("token解析失败")
-                Alert.alert("用户登录状态异常，请重新登录后再试一次")
-                //清除异常token
-                await AsyncStorage.removeItem('token')
-                navigation.replace('Login');
-            }
-        }
-        const fetchMyJournals = async () => {
             try {
-                console.log("Fetch MyJournals: ");
-                console.log(`${API_URL}/journals/getByOwnerId?owner_id=${currentUserId}`);
-                const res = await fetch(`${API_URL}/journals/getByOwnerId?owner_id=${currentUserId}`);
-                const data = await res.json();
-                setJournals(data || []);
-            } catch (err) {
-                console.error(err);
+                const decoded: any = jwtDecode(token);
+                const uid = decoded.userId;
+                setUserId(uid);
+                await fetchMyJournals(uid);
+            } catch (error) {
+                Alert.alert("用户登录状态异常，请重新登录后再试一次");
+                await AsyncStorage.removeItem('token');
+                navigation.replace('Login');
             }
         };
-        fetchToken().then(() => {
-            fetchMyJournals().then(r => {});
-        });
+
+        fetchTokenAndData().then(r => {});
     }, []);
+
+
+    /*
+        fetching all journals by specific user id.
+     */
+    const fetchMyJournals = async (userId: number) => {
+        try {
+            setRefreshing(true);
+            const res = await fetch(`${API_URL}/journals/getByOwnerId?owner_id=${userId}`);
+            const data = await res.json();
+            setJournals(data || []);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setRefreshing(false);
+        }
+    };
 
 
     /*
@@ -91,8 +94,14 @@ const MyJournalsScreen: React.FC = ({ navigation }: any) => {
     };
 
 
+    const handleRefresh = () => {
+        if (userId !== null) {
+            fetchMyJournals(userId).then(r => {});
+        }
+    };
+
+
     const onEdit = (journal: Journal) => {
-        //对已有游记进行编辑
         navigation.navigate('Post', { journal, isEdit: true });
     };
 
@@ -128,6 +137,8 @@ const MyJournalsScreen: React.FC = ({ navigation }: any) => {
             <FlatList
                 data={journals}
                 keyExtractor={(item) => item.id}
+                refreshing={refreshing}
+                onRefresh={handleRefresh}
                 renderItem={({ item }) => (
                     <View style={styles.card}>
                         <Image source={{ uri: item.cover_url }} style={styles.cover} />
