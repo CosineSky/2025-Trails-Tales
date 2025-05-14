@@ -2,6 +2,8 @@
 
 `Trails & Tales`（足迹与故事）是一款基于 React、React-Native 开发的跨平台游记记录应用，支持图文发布、视频播放等多重功能，后端基于 Node.js；目前仅适用于 Android 平台和 Web 端应用。
 
+@CosineSky, Latest Updated on 2025/5/14.
+
 
 
 ## ✨ 功能特性
@@ -16,42 +18,22 @@
 
 
 
-## 📷 截图展示
+## 📷 部分截图展示
 
-> 登陆页面
+> 移动端
 
-![login](images/login.jpg)
+![mobile](images/all-in-one-mobile.png)
 
-> 主界面
+> 网页端
 
-![home](images/home.jpg)
-
-> 我的游记页面
-
-![story](images/story.jpg)
-
-> 个人档案页面
-
-![profile](images/profile.jpg)
-
-> 游记发布页面
-
-![post](images/post.jpg)
-
-> （网页端）登录页面
-
-![web-login](images/web-login.png)
-
-> （网页端）主界面
-
-![web-main](images/web-main.png)
-
+![mobile](images/all-in-one-web.png)
 
 
 ## 🛠 技术栈
 
 - **前端**：`React`、`React Native`、`Redux`、`Axios`；
 - **后端**：`Node.js`、`Express`、`JWT`、`MySQL`；
+- **其它**：`Jenkins`（CI/CD）、高德地图 API；
 - **存储服务**：阿里云OSS（Object-Storage-Service）
 
 
@@ -217,7 +199,7 @@ react-native run-android
 
 -  游记评论功能
 -  游记分类与标签筛选
--  地理定位与地图标记
+-  地理定位与地图标记 (`Done!`)
 
 
 ## 🤝 贡献指南
