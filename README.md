@@ -26,7 +26,7 @@
 
 > 网页端
 
-![mobile](images/all-in-one-web.png)
+![web](images/all-in-one-web.png)
 
 
 ## 🛠 技术栈
