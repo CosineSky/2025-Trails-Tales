@@ -14,6 +14,7 @@ import {
     Dimensions,
     Share,
 } from 'react-native';
+import FastImage from 'react-native-fast-image';
 import {Video, VideoRef} from 'react-native-video';
 import Svg, {Circle, Line, Path} from "react-native-svg";
 import Orientation from 'react-native-orientation-locker';
@@ -342,7 +343,7 @@ export default function Detail() {
 
                     {/* 2. other pictures. */}
                     {journal.pictures.map((url, idx) => (
-                        <Image key={idx} source={{ uri: url }} style={styles.mediaItem} />
+                        <FastImage key={idx} source={{ uri: url }} style={styles.mediaItem} />
                     ))}
                 </ScrollView>
 

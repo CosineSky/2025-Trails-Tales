@@ -1,16 +1,21 @@
 import React, { useEffect, useRef, useState } from 'react';
-import {Alert, Button, Image, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native';
-import { handleFilePick, uploadSingleFile } from '../../services/selectAndUploadFile.ts';
+import {
+    Text,
+    View,
+    Image,
+    StyleSheet,
+    Alert,
+    TouchableOpacity,
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import FastImage from 'react-native-fast-image';
 import { jwtDecode } from 'jwt-decode';
-import { fetchProfile, updateProfile } from '../../services/profileService.ts';
-import {Asset} from "react-native-image-picker";
-import {NavigationActions} from "react-navigation";
-import navigate = NavigationActions.navigate;
+import { fetchProfile } from '../../services/profileService.ts';
 import Svg, {Circle, Path} from "react-native-svg";
 
 const defaultAvatar = 'http://bucket-cloudsky.oss-cn-nanjing.aliyuncs.com/1746532505514.jpg';
 const profileImage = require('../../assets/images/bg/profile.jpg');
+
 
 interface DecodedToken {
     userId: number;
@@ -19,6 +24,7 @@ interface DecodedToken {
     iat: number;
     exp: number;
 }
+
 
 const UserInfo: React.FC = ({ navigation, route }: any) => {
     const decodedUserToken = useRef<DecodedToken | null>(null);
@@ -111,14 +117,33 @@ const UserInfo: React.FC = ({ navigation, route }: any) => {
                         onPress={() => navigation.navigate('Edit')}
                         style={styles.iconButton}
                     >
-                        <Svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="black"
-                             strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <Svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <Path d="M11.5 15H7a4 4 0 0 0-4 4v2" />
                             <Path
                                 d="M21.378 16.626a1 1 0 0 0-3.004-3.004l-4.01 4.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z" />
                             <Circle cx="10" cy="7" r="4" />
                         </Svg>
                         <Text style={styles.iconLabel}>编辑</Text>
+                    </TouchableOpacity>
+
+                    {/* 清除缓存按钮 */}
+                    <TouchableOpacity
+                        onPress={() => {
+                            FastImage.clearMemoryCache()
+                                .then(r => {});
+                            FastImage.clearDiskCache()
+                                .then(r => {});
+                            Alert.alert('成功！', '已成功清除缓存！');
+                        }}
+                        style={styles.iconButton}
+                    >
+                        <Svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <Path
+                                d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/>
+                            <Path d="M22 21H7"/>
+                            <Path d="m5 11 9 9"/>
+                        </Svg>
+                        <Text style={styles.iconLabel}>清除缓存</Text>
                     </TouchableOpacity>
 
                     {/* To Login 按钮 */}

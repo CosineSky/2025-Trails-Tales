@@ -1,15 +1,22 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const db = require('../../../db');
+const db = require("../../../db");
+const {journalsLimiter} = require("../../../accessLimiter");
+
+
+const MAX_PAGE_SIZE = 50;
+const DEFAULT_PAGE_SIZE = 10;
 
 
 /*
     Getting a list of journals
  */
-router.get('/items', (req, res) => {
-    const search = req.query.search;
-    const page = parseInt(req.query.page) || 1;
-    const pageSize = req.query.page ? 10 : 32767;
+router.get('/items', journalsLimiter, (req, res) => {
+    const search = (typeof req.query.search === 'string'
+        && req.query.search.length <= 50) ? req.query.search : null;
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const pageSizeRaw = parseInt(req.query.pageSize) || DEFAULT_PAGE_SIZE;
+    const pageSize = Math.min(pageSizeRaw, MAX_PAGE_SIZE);
     const offset = (page - 1) * pageSize;
 
     let sql = `
@@ -18,7 +25,7 @@ router.get('/items', (req, res) => {
             users.nickname AS owner_nickname,
             users.avatar AS owner_avatar_url
         FROM journals
-                 LEFT JOIN users ON journals.owner_id = users.id
+        LEFT JOIN users ON journals.owner_id = users.id
         WHERE journals.status = 1
     `;
     let params = [];
@@ -28,23 +35,29 @@ router.get('/items', (req, res) => {
         params.push(`%${search}%`, `%${search}%`);
     }
 
-    sql += ' LIMIT ? OFFSET ?';
+    sql += ' ORDER BY journals.created_at DESC LIMIT ? OFFSET ?';
     params.push(pageSize, offset);
 
     db.query(sql, params, (err, results) => {
         if (err) {
-            return res.status(500).json({ error: err.message });
-        } else {
-            return res.status(200).json(results);
+            return res.status(500).json({ error: "Database error" });
+        }
+        else {
+            return res.status(200).json({
+                page,
+                pageSize,
+                results
+            });
         }
     });
 });
 
 
+
 /*
     Getting a list of journals
  */
-router.get('/all', (req, res) => {
+router.get('/all', journalsLimiter, (req, res) => {
     const search = req.query.search;
     const page = parseInt(req.query.page) || 1;
     const pageSize = req.query.page ? 10 : 32767;
@@ -71,7 +84,8 @@ router.get('/all', (req, res) => {
     db.query(sql, params, (err, results) => {
         if (err) {
             return res.status(500).json({ error: err.message });
-        } else {
+        }
+        else {
             return res.status(200).json(results);
         }
     });
@@ -81,7 +95,7 @@ router.get('/all', (req, res) => {
 /*
     Getting the detailed information by journal ID.
  */
-router.get('/getById', (req, res) => {
+router.get('/getById', journalsLimiter, (req, res) => {
     const targetId = req.query.search;
 
     const journalSql = `
@@ -119,9 +133,9 @@ router.get('/getById', (req, res) => {
 
 
 /*
-    Getting journal list posted by the target user, only those not deleted.
+    Getting a list of journal posted by the target user, only those not deleted.
  */
-router.get('/getByOwnerId', (req, res) => {
+router.get('/getByOwnerId', journalsLimiter, (req, res) => {
     const ownerId = req.query.owner_id;
 
     if (!ownerId) {
