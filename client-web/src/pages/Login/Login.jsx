@@ -1,15 +1,15 @@
 import '../../LoginRegister.css';
 import {jwtDecode} from 'jwt-decode';
-import {useState} from "react";
+import React, {useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import {message} from "antd";
 import {_HOST_IP, _HOST_PORT} from "../../config";
+import logo from "../../assets/images/logo.png";
 
 
 /*
     Server IP
  */
-// TODO - dev/prod env switching.
 const API_URL = `http://${_HOST_IP}:${_HOST_PORT}/api`;
 
 
@@ -43,8 +43,11 @@ export default function Login() {
             message.success('登录成功！');
             navigate('/home');
         }
-        else {
+        else if (res.status === 401) {
             message.error('用户名或密码错误！');
+        }
+        else if (res.status === 500) {
+            message.error('服务器出现未知错误！');
         }
 
     };
@@ -54,15 +57,18 @@ export default function Login() {
         <div className="login-bg-wrapper">
             <div className="login-wrapper">
                 <form className="login">
-                    <p className="title">Log in</p>
-                    <input type="text" placeholder="Username" onChange={e => setUsername(e.target.value)}/>
+                    <div className="login-title-box">
+                        <img src={logo} alt="logo" className="logo-img" />
+                        <span className="title">Trails & Tales 审核管理系统</span>
+                    </div>
+                    <input type="text" placeholder="请输入用户名..." onChange={e => setUsername(e.target.value)}/>
                     <span className="icon-wrapper">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                              strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-user-icon lucide-user"><path
                             d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                     </span>
 
-                    <input type="password" placeholder="Password" onChange={e => setPassword(e.target.value)}/>
+                    <input type="password" placeholder="请输入密码..." onChange={e => setPassword(e.target.value)}/>
                     <span className="icon-wrapper">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                              strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
@@ -71,12 +77,12 @@ export default function Login() {
                             d="m9 12 2 2 4-4"/></svg>
                     </span>
 
-                    <Link to="/reset">Forgot your password?</Link><br/>
-                    <span className="info">Don't have an account? </span>
-                    <Link to="/register">Register one!</Link>
+                    <Link to="/reset">忘记密码？</Link><br/>
+                    <span className="info">还没有账户？没关系， </span>
+                    <Link to="/register">点击注册！</Link>
                     <button onClick={handleLogin}>
                         <i className="spinner"></i>
-                        <span className="state">Log in</span>
+                        <span className="state">登录</span>
                     </button>
                 </form>
             </div>

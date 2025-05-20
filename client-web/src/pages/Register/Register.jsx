@@ -1,15 +1,15 @@
 import '../../LoginRegister.css';
-import { useState } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
 import {message} from "antd";
 import {_HOST_IP, _HOST_PORT} from "../../config";
+import logo from '../../assets/images/logo.png';
 
 
 /*
     Server IP
  */
-// TODO - dev/prod env switching.
 const API_URL = `http://${_HOST_IP}:${_HOST_PORT}/api`;
 
 
@@ -18,7 +18,7 @@ export default function Register() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [role, setRole] = useState(1); // 默认角色是“审核人员”
+    const [role, setRole] = useState(1);
 
 
     const handleRegister = async (e) => {
@@ -38,6 +38,12 @@ export default function Register() {
             message.success('注册成功，已跳转到登录页面！');
             navigate('/login');
         }
+        else if (res.status === 400) {
+            message.error('用户名已经存在！');
+        }
+        else if (res.status === 500) {
+            message.error('服务器出现未知错误！');
+        }
     };
 
 
@@ -45,16 +51,18 @@ export default function Register() {
         <div className="login-bg-wrapper">
             <div className="login-wrapper">
                 <form className="login">
-                    <p className="title">Register</p>
-
-                    <input type="text" placeholder="Username" onChange={e => setUsername(e.target.value)} />
+                    <div className="login-title-box">
+                        <img src={logo} alt="logo" className="logo-img" />
+                        <span className="title">Trails & Tales 审核管理系统</span>
+                    </div>
+                    <input type="text" placeholder="请输入用户名..." onChange={e => setUsername(e.target.value)} />
                     <span className="icon-wrapper">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                              strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-user-icon lucide-user"><path
                             d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                     </span>
 
-                    <input type="password" placeholder="Password" onChange={e => setPassword(e.target.value)} />
+                    <input type="password" placeholder="请输入密码..." onChange={e => setPassword(e.target.value)} />
                     <span className="icon-wrapper">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                              strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
@@ -63,7 +71,7 @@ export default function Register() {
                             d="m9 12 2 2 4-4"/></svg>
                     </span>
 
-                    <input type="password" placeholder="Confirm Password" onChange={e => setConfirmPassword(e.target.value)} />
+                    <input type="password" placeholder="请输入确认密码..." onChange={e => setConfirmPassword(e.target.value)} />
                     <span className="icon-wrapper">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                              strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
@@ -89,17 +97,17 @@ export default function Register() {
                             onChange={e => setRole(e.target.value)}
                             value={role}
                         >
-                            <option value={1}>Reviewer</option>
-                            <option value={2}>Admin</option>
+                            <option value={1}>审核人员</option>
+                            <option value={2}>管理员</option>
                         </select>
                     </div>
                     <br/>
 
-                    <span className="info">Already have an account? </span>
-                    <Link to="/login">Log in!</Link>
+                    <span className="info">已经拥有账户？</span>
+                    <Link to="/login">点击登录！</Link>
                     <button onClick={handleRegister}>
                         <i className="spinner"></i>
-                        <span className="state">Register</span>
+                        <span className="state">注册</span>
                     </button>
                 </form>
             </div>

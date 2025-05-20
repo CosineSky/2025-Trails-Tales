@@ -53,6 +53,15 @@ const TravelNoteAdmin = () => {
     const [journals, setJournals] = useState(null);
     const [rejectionReason, setRejectionReason] = useState('');
     const [loading, setLoading] = useState(true);
+    const [showPlayer, setShowPlayer] = useState(false);
+    const [previewVisible, setPreviewVisible] = useState(false);
+    const [previewImage, setPreviewImage] = useState('');
+
+    const handlePreview = (url: string) => {
+        setPreviewImage(url);
+        setPreviewVisible(true);
+    };
+
     const currentRole = localStorage.getItem('role');
 
 
@@ -191,6 +200,35 @@ const TravelNoteAdmin = () => {
     ];
 
 
+    const handleApproveAll = async () => {
+        const pendingJournals = filteredData?.filter(journal => journal.status === 0);
+        if (pendingJournals.length === 0) {
+            message.info('没有待审核的游记');
+            return;
+        }
+
+        Modal.confirm({
+            title: '一键审核',
+            content: `确定要通过 ${pendingJournals.length} 条待审核游记吗？`,
+            onOk: async () => {
+                try {
+                    await Promise.all(pendingJournals.map(journal =>
+                        axios.put(`${API_URL}/journals/approve/${journal.id}`)
+                    ));
+                    message.success(`已通过 ${pendingJournals.length} 条游记`);
+                    const updatedJournals = journals.map(journal =>
+                        journal.status === 0 ? { ...journal, status: 1 } : journal
+                    );
+                    setJournals(updatedJournals);
+                } catch (err) {
+                    message.error(`批量审核失败：${err}`);
+                }
+            }
+        });
+    };
+
+
+
     const handleApprove = (record) => {
         axios.put(`${API_URL}/journals/approve/${record.id}`)
             .then((response) => {
@@ -297,7 +335,7 @@ const TravelNoteAdmin = () => {
             <div className="header-bar">
                 <div style={{display: "flex", flexDirection: "row", justifyContent: "center", alignContent: "center"}}>
                     <img src={logo} alt="logo" className="logo-img" style={{width: '40px'}} />
-                    <div style={{fontSize: '24px', margin: '5px 0 0 5px'}} className="header-left">游记审核管理系统</div>
+                    <div style={{fontSize: '24px', margin: '5px 0 0 5px'}} className="header-left">Trails & Tales 审核管理系统</div>
                 </div>
                 <div className="header-right" onClick={() => handleLogout()}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -355,6 +393,16 @@ const TravelNoteAdmin = () => {
                             <Option value="status_asc">按状态升序</Option>
                             <Option value="status_desc">按状态降序</Option>
                         </Select>
+                        <Button
+                            onClick={handleApproveAll}
+                            disabled={!filteredData?.some(j => j.status === 0)}
+                            style={{
+                                backgroundColor: 'rgb(4, 40, 68)',
+                                borderColor: 'rgb(4, 40, 68)',
+                                color: '#ffffff'
+                        }}
+                        >一键通过
+                        </Button>
                     </Space>
 
                     <Table
@@ -368,9 +416,10 @@ const TravelNoteAdmin = () => {
             {selectedJournal && (
                 <Modal
                     title={selectedJournal.title}
-                    visible={true}
                     onCancel={handleModalClose}
+                    visible={true}
                     footer={null}
+                    zIndex={1}
                     width={800}
                 >
                     <div>
@@ -383,37 +432,57 @@ const TravelNoteAdmin = () => {
                         }}>
                             {selectedJournal.pictures.length > 0
                                 ? selectedJournal.pictures.map((url, index) => (
-                                <img
-                                    key={index}
-                                    src={url}
-                                    alt={`journal-img-${index}`}
-                                    style={{ width: '48%', height: 'auto', borderRadius: 6 }}
-                                />
-                            )) : (
-                                <img
-                                    src={selectedJournal.cover_url}
-                                    alt="cover"
-                                    style={{ width: 600, height: 'auto' }}
-                                />
-                            )}
+                                    <img
+                                        key={index}
+                                        src={url}
+                                        alt={`journal-img-${index}`}
+                                        style={{ width: '48%', height: 'auto', borderRadius: 6, cursor: 'pointer' }}
+                                        onClick={() => handlePreview(url)}
+                                    />
+                                ))
+                                : (
+                                    <img
+                                        src={selectedJournal.cover_url}
+                                        alt="cover"
+                                        style={{ width: '450px', height: 'auto', cursor: 'pointer' }}
+                                        onClick={() => handlePreview(selectedJournal.cover_url)}
+                                    />
+                                )}
+
                         </div>
                         <p>{selectedJournal.content}</p>
                         <p>
-                            <strong>视频链接：</strong>
+                            <strong>游记视频：</strong>
                             {selectedJournal.video_url ? (
                                 <Button
                                     icon={<VideoCameraTwoTone />}
-                                    onClick={() => {
-                                        window.open(selectedJournal.video_url, '_blank')
-                                    }}
-                                >Video</Button>
+                                    onClick={() => setShowPlayer(!showPlayer)}
+                                >{showPlayer ? '隐藏' : '播放'}</Button>
                             ) : ("无")}
                         </p>
+                        {showPlayer && selectedJournal.video_url && (
+                            <video
+                                controls
+                                autoPlay
+                                src={selectedJournal.video_url}
+                                style={{ width: '100%', maxHeight: 400 }}
+                            />
+                        )}
                     </div>
                 </Modal>
             )}
-
-
+            {previewVisible && (
+                <Modal
+                    onCancel={() => setPreviewVisible(false)}
+                    footer={null}
+                    visible={true}
+                    zIndex={2}
+                    centered
+                    width={880}
+                >
+                    <img alt="preview" src={previewImage} style={{ width: '800px', height: '600px' }} />
+                </Modal>
+            )}
         </div>
     );
 };

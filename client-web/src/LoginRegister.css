@@ -101,6 +101,13 @@
     color: #000;
     text-decoration: none;
 }
+.login .login-title-box {
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+.login .logo-img {
+    width: 40px;
+}
 .login .title {
     color: #444;
     font-size: 1.2em;
