@@ -25,13 +25,12 @@ type Journal = {
 };
 
 const backgroundImage = require('../../assets/images/bg/home.jpg');
-
-const API_URL = `http://${_HOST_IP}:${_HOST_PORT}/api`;
-
-
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 const ITEM_WIDTH = screenWidth * 0.45;
 const ITEM_HEIGHT = ITEM_WIDTH;
+
+
+const API_URL = `http://${_HOST_IP}:${_HOST_PORT}/api`;
 
 
 const Home: React.FC = ({ navigation }: any) => {

@@ -539,7 +539,7 @@ const styles = StyleSheet.create({
         flexShrink: 0,
     },
     mediaItem: {
-        width: 360, // 或 Dimensions.get('window').width
+        width: 360,
         height: 240,
         borderRadius: 12,
         marginRight: 8,
@@ -613,8 +613,8 @@ const styles = StyleSheet.create({
     },
     separator: {
         height: 1,
-        backgroundColor: '#515151',  // 设置分割线颜色
-        marginVertical: 10,        // 控制分割线的上下间距
+        backgroundColor: '#515151',
+        marginVertical: 10,
     }
     ,locationCard: {
         backgroundColor: 'rgba(255, 255, 255, 0.85)',

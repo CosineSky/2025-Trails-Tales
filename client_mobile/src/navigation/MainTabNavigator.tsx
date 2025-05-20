@@ -1,20 +1,21 @@
-// src/navigation/MainTabNavigator.tsx
 import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Home from '../pages/main/Home';
-import Post from '../pages/main/Post';
 import Story from "../pages/main/Story";
 import Profile from '../pages/main/Profile';
 import HomeIcon from '../assets/icons/HomeIcon';
 import StoryIcon from "../assets/icons/StoryIcon";
 import ProfileIcon from "../assets/icons/ProfileIcon";
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+
 
 const Tab = createBottomTabNavigator();
 
-/*
-    Sub navigator for Stack.Screen -> 'Main'.
+
+/**
+ * Sub-navigator for 'Main' page of Stack.Screen.
+ * @constructor
  */
-export default function MainTabNavigator() {
+const MainTabNavigator = () => {
     return (
         <Tab.Navigator
             screenOptions={({ route }) => ({
@@ -39,3 +40,5 @@ export default function MainTabNavigator() {
         </Tab.Navigator>
     );
 }
+
+export default MainTabNavigator;

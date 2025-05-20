@@ -3,6 +3,7 @@ const initialState = {
     user: null,
 };
 
+
 const authReducer = (state = initialState, action: any) => {
     switch (action.type) {
         case 'LOGIN':
@@ -21,5 +22,6 @@ const authReducer = (state = initialState, action: any) => {
             return state;
     }
 };
+
 
 export default authReducer;

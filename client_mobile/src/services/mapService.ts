@@ -1,7 +1,14 @@
+/**
+ * Calls Amap's geo-decoding API, requesting for detailed info of a specific location.
+ * @param latitude latitude of the location
+ * @param longitude longitude of the location
+ */
 export const getAddressFromCoords = async (latitude: number, longitude: number) => {
+    // api key for amap, must be of web-app type.
     const key = '4345bbee84d8a67580da1b64d228f6ad';
     const location = `${longitude},${latitude}`;
     const url = `https://restapi.amap.com/v3/geocode/regeo?output=json&location=${location}&key=${key}`;
+
     try {
         const response = await fetch(url);
         const data = await response.json();

@@ -5,6 +5,11 @@ import {_HOST_IP, _HOST_PORT} from "../config.ts";
 const API_URL = `http://${_HOST_IP}:${_HOST_PORT}/api`;
 
 
+/**
+ * User login, used both in app and management panel.
+ * @param username user's EMAIL
+ * @param password user's password
+ */
 export const loginUser = async (username: string, password: string) => {
     try {
         const response = await apiClientService.post(`${API_URL}/login`,
@@ -16,6 +21,11 @@ export const loginUser = async (username: string, password: string) => {
 };
 
 
+/**
+ * User register, used both in app and management panel.
+ * @param username user's EMAIL
+ * @param password user's password
+ */
 export const registerUser = async (username: string, password: string) => {
     try {
         const role: number = 0;

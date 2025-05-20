@@ -1,17 +1,22 @@
 import React from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
-import { NavigationContainer } from '@react-navigation/native';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
-import MainTabNavigator from "./MainTabNavigator.tsx";
 import Detail from "../pages/Detail.tsx";
 import Post from "../pages/main/Post.tsx";
 import Edit from "../pages/Edit.tsx";
+import MainTabNavigator from "./MainTabNavigator.tsx";
+import { createStackNavigator } from '@react-navigation/stack';
+import { NavigationContainer } from '@react-navigation/native';
 
 
 const Stack = createStackNavigator();
 
-const AppNavigator: React.FC = () => (
+
+/**
+ * Navigator of the entire app.
+ * @constructor
+ */
+const AppNavigator = () => (
     <NavigationContainer>
         <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: true }}>
             <Stack.Screen name="Login" component={Login} options={{ title: '登录' }} />

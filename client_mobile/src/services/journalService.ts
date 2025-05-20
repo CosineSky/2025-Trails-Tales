@@ -14,6 +14,10 @@ type Journal = {
 }
 
 
+/**
+ * A user posts a new journal.
+ * @param journal body of the journal, see above
+ */
 export const createJournal  = async (journal: Journal) => {
     try {
         const response = await apiClientService.post(
