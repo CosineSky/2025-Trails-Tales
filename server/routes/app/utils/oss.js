@@ -21,7 +21,7 @@ const client = new OSS({
 // 指定临时存储位置
 const upload = multer({dest: 'uploads/'});
 
-
+//上传单文件模式
 router.post('/oss', upload.single('avatar'), async (req, res) => {
     const file = req.file;
     const ext = path.extname(file.originalname);

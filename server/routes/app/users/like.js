@@ -4,7 +4,9 @@ const db = require('../../../db');
 const authenticateToken = require('../../../utils/TokenDecoder');
 
 /*
-    Like.
+    用户点赞
+    @param journal_id 被点赞的游记
+    @param user_id 点赞的用户
  */
 router.post('/like', authenticateToken,(req, res) => {
     const { journal_id, user_id } = req.body;
@@ -21,7 +23,9 @@ router.post('/like', authenticateToken,(req, res) => {
 
 
 /*
-    Dislike.
+    取消点赞
+    @param journal_id 被取消点赞的游记
+    @param user_id 取消点赞的用户
  */
 router.delete('/like', authenticateToken,(req, res) => {
     const { journal_id, user_id } = req.body;
@@ -38,7 +42,8 @@ router.delete('/like', authenticateToken,(req, res) => {
 
 
 /*
-    Getting the amount of likes of a journal.
+    获取一篇游记的点赞数
+    @param journal_id 游记id
  */
 router.get('/like/count/:journal_id',authenticateToken, (req, res) => {
     const { journal_id } = req.params;
@@ -55,11 +60,14 @@ router.get('/like/count/:journal_id',authenticateToken, (req, res) => {
 
 
 /*
-    Decide if a user liked a specific journal.
+    查看用户对某篇游记的点赞状态
+    @param journal_id 游记id
+    @param user_id 用户id
  */
 router.get('/like/status', authenticateToken,(req, res) => {
     const { journal_id, user_id } = req.query;
 
+    //必须提供journal_id和user_id，否则返回4xx错误
     if (!journal_id || !user_id) {
         return res.status(400).json({ error: 'Missing journal_id or user_id!' });
     }

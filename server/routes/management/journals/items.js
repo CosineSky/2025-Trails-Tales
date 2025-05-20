@@ -4,14 +4,18 @@ const db = require('../../../db');
 
 
 /*
-    Getting a list of journals
+    查看游记列表
+    @param search 搜索关键词
+    @param page 页码
  */
 router.get('/items', (req, res) => {
     const search = req.query.search;
+    // 如果未提供page，则默认为1，把所有游记都展示出来，以防报错
     const page = parseInt(req.query.page) || 1;
     const pageSize = req.query.page ? 10 : 32767;
     const offset = (page - 1) * pageSize;
 
+    // 获取已审核通过(status = 1)的游记信息、发布者昵称、发布者头像。journal表和 user表连表查询
     let sql = `
         SELECT
             journals.*,
@@ -23,13 +27,15 @@ router.get('/items', (req, res) => {
     `;
     let params = [];
 
+    //若搜索关键词存在，则额外插入搜索条件
     if (search) {
         sql += ' AND (journals.title LIKE ? OR users.nickname LIKE ?)';
-        params.push(`%${search}%`, `%${search}%`);
+        params.push(`%${search}%`, `%${search}%`);      //填充参数
     }
 
+    //分页查询逻辑
     sql += ' LIMIT ? OFFSET ?';
-    params.push(pageSize, offset);
+    params.push(pageSize, offset);      //填充参数
 
     db.query(sql, params, (err, results) => {
         if (err) {

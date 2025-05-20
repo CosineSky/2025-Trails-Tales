@@ -7,7 +7,7 @@ const defineFollowsModel = require('./models/follows');
 const defineCommentsModel = require('./models/comments');
 
 
-const sequelize = new Sequelize('tales', 'root', '1qaz@WSX', {
+const sequelize = new Sequelize('tales', 'root', '123456', {
     host: 'localhost',
     dialect: 'mysql',
 });

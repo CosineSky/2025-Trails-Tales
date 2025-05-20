@@ -4,7 +4,9 @@ const db = require('../../../db');
 const authenticateToken = require('../../../utils/TokenDecoder');
 
 /*
-    Follow.
+    关注逻辑
+    @param follower_id 关注者id
+    @param followee_id 被关注者id
  */
 router.post('/follow', authenticateToken,(req, res) => {
     const { follower_id, followee_id } = req.body;
@@ -21,7 +23,9 @@ router.post('/follow', authenticateToken,(req, res) => {
 
 
 /*
-    Unfollow.
+    取关逻辑
+    @param follower_id 关注者id
+    @param followee_id 被关注者id
  */
 router.delete('/follow', authenticateToken,(req, res) => {
     const { follower_id, followee_id } = req.body;
