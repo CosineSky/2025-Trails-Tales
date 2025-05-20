@@ -1,10 +1,9 @@
 import {Asset, launchImageLibrary, MediaType} from "react-native-image-picker";
 import ImageResizer from "react-native-image-resizer";
+import {_HOST_IP, _HOST_PORT} from "../config.ts";
 
 
-const HOST_IP = "115.175.40.241"; // This gives 127.0.0.1 in host device.
-const HOST_PORT = "5000";
-const API_URL = `http://${HOST_IP}:${HOST_PORT}/api`;
+const API_URL = `http://${_HOST_IP}:${_HOST_PORT}/api`;
 
 
 //需要指定文件类型、最多可以选择的文件个数

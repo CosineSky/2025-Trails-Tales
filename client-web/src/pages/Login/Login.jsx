@@ -3,13 +3,14 @@ import {jwtDecode} from 'jwt-decode';
 import {useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import {message} from "antd";
+import {_HOST_IP, _HOST_PORT} from "../../config";
 
 
 /*
     Server IP
  */
 // TODO - dev/prod env switching.
-const HOST_IP = '115.175.40.241';
+const API_URL = `http://${_HOST_IP}:${_HOST_PORT}/api`;
 
 
 export default function Login() {
@@ -20,7 +21,7 @@ export default function Login() {
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        const res = await fetch(`http://${HOST_IP}:5000/api/login`, {
+        const res = await fetch(`${API_URL}/login`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({username, password}),

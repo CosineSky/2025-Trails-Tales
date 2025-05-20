@@ -3,13 +3,14 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
 import {message} from "antd";
+import {_HOST_IP, _HOST_PORT} from "../../config";
 
 
 /*
     Server IP
  */
 // TODO - dev/prod env switching.
-const HOST_IP = '115.175.40.241';
+const API_URL = `http://${_HOST_IP}:${_HOST_PORT}/api`;
 
 
 export default function Register() {
@@ -27,7 +28,7 @@ export default function Register() {
             return;
         }
 
-        const res = await fetch(`http://${HOST_IP}:5000/api/register`, {
+        const res = await fetch(`${API_URL}/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password, role }),
