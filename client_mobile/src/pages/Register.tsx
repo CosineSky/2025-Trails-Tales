@@ -23,12 +23,16 @@ const Register: React.FC = ({ navigation }: any) => {
             Alert.alert('注册失败', '请填充所有字段！');
             return;
         }
-        if (password.length < 6) {
-            Alert.alert('注册失败', '密码长度至少为6个字符！');
+        if (password.length < 6 || password.length > 32) {
+            Alert.alert('注册失败', '密码长度必须在6到32字符之间！');
             return;
         }
         if (password !== confirmPassword) {
             Alert.alert('注册失败', '密码与确认密码不匹配！');
+            return;
+        }
+        if (email.length > 16) {
+            Alert.alert('注册失败', '用户名长度不能超过16个字符！');
             return;
         }
         try {

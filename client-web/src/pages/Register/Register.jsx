@@ -27,6 +27,14 @@ export default function Register() {
             message.error('密码和确认密码不匹配！');
             return;
         }
+        if (password.length < 6 || password.length > 32) {
+            message.error('密码长度必须在6到32字符之间！');
+            return;
+        }
+        if (username.length > 16) {
+            message.error('用户名长度不能超过16个字符！');
+            return;
+        }
 
         const res = await fetch(`${API_URL}/register`, {
             method: 'POST',
