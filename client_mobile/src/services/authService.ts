@@ -12,6 +12,7 @@ const API_URL = `http://${_HOST_IP}:${_HOST_PORT}/api`;
  */
 export const loginUser = async (username: string, password: string) => {
     try {
+        console.log(_HOST_IP);
         const response = await apiClientService.post(`${API_URL}/login`,
             { username, password });
         return response.data;

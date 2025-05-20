@@ -65,13 +65,13 @@ const Home: React.FC = ({ navigation }: any) => {
 
             // refreshing => replacing existed journals.
             if (isRefresh) {
-                setJournals(data);
-                setHasMore(data.length > 0);
+                setJournals(data.results);
+                setHasMore(data.results.length > 0);
             }
             // not refreshing => appending new journals to existed ones
             else {
-                if (data.length > 0) {
-                    setJournals(prev => [...prev, ...data]);
+                if (data.results.length > 0) {
+                    setJournals(prev => [...prev, ...data.results]);
                 } else {
                     setHasMore(false);
                 }
@@ -93,7 +93,9 @@ const Home: React.FC = ({ navigation }: any) => {
         fetching the first page of journals on mounted.
      */
     useEffect(() => {
-        fetchJournals(true, search).then(r => {});
+        fetchJournals(true, search).then(res => {
+            console.log(res)
+        });
     }, []);
 
 
