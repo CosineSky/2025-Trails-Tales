@@ -1,14 +1,13 @@
 import axios from 'axios';
-import apiClient from "./apiClient.ts";
+import apiClientService from "./apiClientService.ts";
+import {_HOST_IP, _HOST_PORT} from "../config.ts";
 
-const HOST_IP = "115.175.40.241"; // This gives 127.0.0.1 in host device.
-const HOST_PORT = "5000";
-const API_URL = `http://${HOST_IP}:${HOST_PORT}/api`;
+const API_URL = `http://${_HOST_IP}:${_HOST_PORT}/api`;
 
 
 export const updateProfile = async (id: number, nickname: string, avatar: string) => {
     try {
-        const response = await apiClient.post(
+        const response = await apiClientService.post(
             `${API_URL}/users/profile/update`,
             { id, nickname, avatar });
         return response.data;
@@ -20,7 +19,7 @@ export const updateProfile = async (id: number, nickname: string, avatar: string
 
 export const fetchProfile = async (id: number) => {
     try {
-        const response = await apiClient.get(
+        const response = await apiClientService.get(
             `${API_URL}/users/profile/fetch`, {
             params: { id }
         });

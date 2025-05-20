@@ -1,4 +1,3 @@
-// react-native
 import React, {useEffect, useState} from "react";
 import {
     Text,
@@ -15,14 +14,6 @@ import {useSelector} from "react-redux";
 import {RouteProp, useRoute} from "@react-navigation/native";
 import { MapView, Marker, MapType, AMapSdk } from 'react-native-amap3d';
 
-
-AMapSdk.init(
-    Platform.select({
-        android: "50535d6188f43a27bdc68d5732cad8c7",
-    })
-);
-
-
 // external modules.
 import Input from '../../components/Input';
 import Button from '../../components/Button';
@@ -33,6 +24,7 @@ import {handleFilePick, uploadSingleFile} from "../../services/selectAndUploadFi
 // utils
 import axios from "axios";
 import {getAddressFromCoords} from "../../services/mapService.ts";
+import {_HOST_IP, _HOST_PORT} from "../../config.ts";
 
 
 type Journal = {
@@ -45,16 +37,18 @@ type Journal = {
     location: string;
 }
 type RouteParams = {
-    journal?: Journal;  // 现有的游记数据
-    isEdit: boolean;    // 是否为编辑模式
+    journal?: Journal;
+    isEdit: boolean;
 };
+AMapSdk.init(
+    Platform.select({
+        android: "50535d6188f43a27bdc68d5732cad8c7",
+    })
+);
 
 
 const backgroundImage = require('../../assets/images/bg/home.jpg');
-
-const HOST_IP = "115.175.40.241";
-const HOST_PORT = "5000";
-const API_URL = `http://${HOST_IP}:${HOST_PORT}/api`;
+const API_URL = `http://${_HOST_IP}:${_HOST_PORT}/api`;
 
 
 export default function Post({navigation}: any) {
@@ -201,28 +195,28 @@ export default function Post({navigation}: any) {
             <ScrollView contentContainerStyle={styles.container}>
 
                 {/* map */}
-                {/*<Text style={styles.label}>标记足迹</Text>*/}
-                {/*<MapView*/}
-                {/*    style={{ width: '100%', height: 300 }}*/}
-                {/*    mapType={MapType.Satellite}*/}
-                {/*    initialCameraPosition={{*/}
-                {/*        target: {*/}
-                {/*            latitude: 32.050303,*/}
-                {/*            longitude: 118.781696,*/}
-                {/*        },*/}
-                {/*        zoom: 12,*/}
-                {/*    }}*/}
-                {/*    onLoad={() => getAddressFromCoords(0, 0)}*/}
-                {/*    onPress={async ({ nativeEvent }) => handleMapMarkers(nativeEvent)}*/}
-                {/*>*/}
-                {/*    {markerPosition && (*/}
-                {/*        <Marker*/}
-                {/*            position={markerPosition}*/}
-                {/*            icon={require("../../assets/tiny/footstep.png")}*/}
-                {/*            onPress={() => Alert.alert("Marker Pressed")}*/}
-                {/*        />*/}
-                {/*    )}*/}
-                {/*</MapView>;*/}
+                <Text style={styles.label}>标记足迹</Text>
+                <MapView
+                    style={{ width: '100%', height: 300 }}
+                    mapType={MapType.Satellite}
+                    initialCameraPosition={{
+                        target: {
+                            latitude: 32.050303,
+                            longitude: 118.781696,
+                        },
+                        zoom: 12,
+                    }}
+                    onLoad={() => getAddressFromCoords(0, 0)}
+                    onPress={async ({ nativeEvent }) => handleMapMarkers(nativeEvent)}
+                >
+                    {markerPosition && (
+                        <Marker
+                            position={markerPosition}
+                            icon={require("../../assets/tiny/footstep.png")}
+                            onPress={() => Alert.alert("Marker Pressed")}
+                        />
+                    )}
+                </MapView>;
 
 
                 {/* title input bar. */}

@@ -14,6 +14,7 @@ import {
     Dimensions,
     Share,
 } from 'react-native';
+import FastImage from 'react-native-fast-image';
 import {Video, VideoRef} from 'react-native-video';
 import Svg, {Circle, Line, Path} from "react-native-svg";
 import Orientation from 'react-native-orientation-locker';
@@ -28,6 +29,7 @@ import { RootStackParamList } from '../types/navigation.ts';
 // external modules.
 import {getLikeCount, getLikeStatus, likeJournal, unlikeJournal} from "../services/interactService.ts";
 import {jwtDecode} from "jwt-decode";
+import {_HOST_IP, _HOST_PORT} from "../config.ts";
 
 
 type JournalDetailRouteProp = RouteProp<RootStackParamList, 'JournalDetail'>;
@@ -47,10 +49,7 @@ type Journal = {
 
 
 const backgroundImage = require('../assets/images/bg/home.jpg');
-
-const HOST_IP = "115.175.40.241"; // This gives 127.0.0.1 in host device.
-const HOST_PORT = "5000";
-const API_URL = `http://${HOST_IP}:${HOST_PORT}/api`;
+const API_URL = `http://${_HOST_IP}:${_HOST_PORT}/api`;
 
 
 /*
@@ -342,7 +341,7 @@ export default function Detail() {
 
                     {/* 2. other pictures. */}
                     {journal.pictures.map((url, idx) => (
-                        <Image key={idx} source={{ uri: url }} style={styles.mediaItem} />
+                        <FastImage key={idx} source={{ uri: url }} style={styles.mediaItem} />
                     ))}
                 </ScrollView>
 

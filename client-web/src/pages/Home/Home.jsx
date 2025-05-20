@@ -24,10 +24,13 @@ import {
     VideoCameraTwoTone
 } from '@ant-design/icons';
 import logo from '../../assets/images/logo.png';
+import {_HOST_IP, _HOST_PORT} from "../../config";
 
 
-const HOST_IP = '115.175.40.241';
-
+/*
+    Server IP
+ */
+const API_URL = `http://${_HOST_IP}:${_HOST_PORT}/api`;
 
 const { Option } = Select;
 const statusMap = {
@@ -54,7 +57,7 @@ const TravelNoteAdmin = () => {
 
 
     useEffect(() => {
-        axios.get(`http://${HOST_IP}:5000/api/journals/all`)
+        axios.get(`${API_URL}/journals/all`)
             .then((res) => {
                 setJournals(res.data);
             })
@@ -189,7 +192,7 @@ const TravelNoteAdmin = () => {
 
 
     const handleApprove = (record) => {
-        axios.put(`http://${HOST_IP}:5000/api/journals/approve/${record.id}`)
+        axios.put(`${API_URL}/journals/approve/${record.id}`)
             .then((response) => {
                 message.success(response.data.message);
                 // 更新前端状态
@@ -224,7 +227,7 @@ const TravelNoteAdmin = () => {
                     message.error('请填写拒绝理由');
                     return Promise.reject(); // 阻止 Modal 自动关闭
                 }
-                axios.put(`http://${HOST_IP}:5000/api/journals/reject/${record.id}`, { rejectionReason: inputReason })
+                axios.put(`${API_URL}/journals/reject/${record.id}`, { rejectionReason: inputReason })
                     .then((response) => {
                         message
                             .success(response.data.message)
@@ -249,7 +252,7 @@ const TravelNoteAdmin = () => {
             title: '确认删除',
             content: `您确定要删除《${record.title}》这篇游记吗？`,
             onOk: () => {
-                axios.put(`http://${HOST_IP}:5000/api/journals/delete/${record.id}`)
+                axios.put(`${API_URL}/journals/delete/${record.id}`)
                     .then((response) => {
                         message
                             .success(response.data.message)
@@ -273,7 +276,7 @@ const TravelNoteAdmin = () => {
         // setSelectedJournal(record);
         try {
             const res = await axios.get(
-                `http://${HOST_IP}:5000/api/journals/getById?search=${record.id}`);
+                `${API_URL}/journals/getById?search=${record.id}`);
             setSelectedJournal(res.data);
         } catch (err) {
             message.error(`加载游记详情失败: ${err}`);

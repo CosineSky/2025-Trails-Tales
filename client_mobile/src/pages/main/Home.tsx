@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import MasonryList from 'react-native-masonry-list';
 import Svg, { Circle, Path } from "react-native-svg";
+import {_HOST_IP, _HOST_PORT} from "../../config.ts";
 
 
 type Journal = {
@@ -25,9 +26,7 @@ type Journal = {
 
 const backgroundImage = require('../../assets/images/bg/home.jpg');
 
-const HOST_IP = "115.175.40.241";
-const HOST_PORT = "5000";
-const API_URL = `http://${HOST_IP}:${HOST_PORT}/api`;
+const API_URL = `http://${_HOST_IP}:${_HOST_PORT}/api`;
 
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');

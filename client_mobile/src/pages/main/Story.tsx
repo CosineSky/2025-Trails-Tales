@@ -11,9 +11,10 @@ import {
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {jwtDecode} from "jwt-decode";
+import {_HOST_IP, _HOST_PORT} from "../../config.ts";
 
 
-const API_URL = "http://115.175.40.241:5000/api";
+const API_URL = `http://${_HOST_IP}:${_HOST_PORT}/api`;
 
 
 type Journal = {
