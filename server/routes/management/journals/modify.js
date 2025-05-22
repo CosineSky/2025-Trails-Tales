@@ -8,7 +8,7 @@ const db = require('../../../db');
  */
 router.put('/approve/:id', (req, res) => {
     const { id } = req.params;
-
+    //status表示游记的状态。
     const sql = 'UPDATE journals SET status = 1 WHERE id = ?';
     db.query(sql, [id], (err, result) => {
         if (err) {
@@ -27,6 +27,7 @@ router.put('/approve/:id', (req, res) => {
 router.put('/reject/:id', (req, res) => {
     const { id } = req.params;
     const { rejectionReason } = req.body;
+    //拒绝理由不能为空
     if (!rejectionReason) {
         return res.status(400).json({ error: 'Reject reason cannot be empty!' });
     }
@@ -48,7 +49,7 @@ router.put('/reject/:id', (req, res) => {
  */
 router.put('/delete/:id', (req, res) => {
     const { id } = req.params;
-
+    //status为3代表删除，为逻辑删除
     const sql = 'UPDATE journals SET status = 3 WHERE id = ?';
     db.query(sql, [id], (err, result) => {
         if (err) {

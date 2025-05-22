@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 
 /*
-    JWT Auth, prevents journal posting without login status.
+    JWT身份验证功能
  */
 function authenticateToken(req, res, next) {
     const authHeader = req.headers['authorization'];

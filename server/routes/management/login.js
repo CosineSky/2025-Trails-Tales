@@ -27,12 +27,13 @@ router.post(
             }
             else {
                 const user = results[0];
+                //生成token
                 const token = jwt.sign(
                     { userId: user.id, username: user.username, role: user.role },
                     'i-dont-know-what-to-put-here',
                     { expiresIn: '24h' }
                 );
-                return res.status(200).json({ token });
+                return res.status(200).json({ token });     //token返回给前端
             }
 
         });
